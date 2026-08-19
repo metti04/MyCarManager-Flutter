@@ -13,57 +13,36 @@ class BlueHeaderCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: height,
-      margin: const EdgeInsets.only(top: -40),
-      decoration: BoxDecoration(color: AppColors.blu, borderRadius: BorderRadius.circular(40)),
+      transform: Matrix4.translationValues(0, -40, 0),
+      decoration: const BoxDecoration(
+        color: AppColors.blu,
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(40),
+          bottomRight: Radius.circular(40),
+        ),
+      ),
       child: Column(
         mainAxisAlignment: actionBox == null ? MainAxisAlignment.center : MainAxisAlignment.start,
         children: [
-          if (actionBox != null) const SizedBox(height: 50),
+          SizedBox(height: actionBox == null ? 40 : 60),
           Text(
             title,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               color: AppColors.bianco,
-              fontSize: actionBox == null ? 34 : 22,
+              fontSize: 26,
               fontWeight: FontWeight.bold,
+              decoration: TextDecoration.none,
             ),
           ),
-          if (actionBox != null) ...[const SizedBox(height: 12), actionBox!],
-        ],
-      ),
-    );
-  }
-}
-
-class HeaderActionBox extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback? onTap;
-
-  const HeaderActionBox({super.key, required this.icon, required this.label, this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(20),
-      onTap: onTap,
-      child: Container(
-        width: 140,
-        height: 140,
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: AppColors.bianco,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 70, color: AppColors.nero),
-            const SizedBox(height: 5),
-            Text(label, style: const TextStyle(color: AppColors.nero, fontSize: 18, fontWeight: FontWeight.bold)),
+          if (actionBox != null) ...[
+            const SizedBox(height: 15),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: actionBox!,
+            ),
           ],
-        ),
+        ],
       ),
     );
   }

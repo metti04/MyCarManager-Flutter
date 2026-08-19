@@ -1,5 +1,4 @@
 import '../models/lavoro.dart';
-import '../models/enums.dart';
 import 'supabase_service.dart';
 
 class LavoroService {
@@ -11,29 +10,6 @@ class LavoroService {
         .from('lavori')
         .select()
         .eq('targaAuto', targa.toUpperCase().trim())
-        .order('targaAuto', ascending: false);
-    return (data as List).map((e) => Lavoro.fromJson(e)).toList();
-  }
-
-  Future<List<Lavoro>> getSpeseByTarga(String targa) async {
-    if (targa.isEmpty) return [];
-    final data = await _client
-        .from('lavori')
-        .select()
-        .eq('targaAuto', targa.toUpperCase().trim())
-        .eq('stato', StatoLavoro.eseguito.dbValue)
-        .order('targaAuto', ascending: false);
-    return (data as List).map((e) => Lavoro.fromJson(e)).toList();
-  }
-
-  Future<List<Lavoro>> getScadenzeByTarga(String targa) async {
-    if (targa.isEmpty) return [];
-    final data = await _client
-        .from('lavori')
-        .select()
-        .eq('targaAuto', targa.toUpperCase().trim())
-        .eq('tipologia', TipologiaLavoro.ordinario.dbValue)
-        .eq('stato', StatoLavoro.daEseguire.dbValue)
         .order('targaAuto', ascending: false);
     return (data as List).map((e) => Lavoro.fromJson(e)).toList();
   }

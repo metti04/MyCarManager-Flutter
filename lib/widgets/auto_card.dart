@@ -27,26 +27,49 @@ class AutoCard extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 110,
-                height: 110,
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: AppColors.bianco, borderRadius: BorderRadius.circular(12)),
-                child: const Icon(Icons.directions_car, size: 60, color: AppColors.blu),
+              Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Container(
+                  width: 110,
+                  height: 110,
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.bianco,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.directions_car, size: 60, color: AppColors.blu),
+                ),
               ),
               const SizedBox(width: 20),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(auto.nomeCompleto,
-                        style: const TextStyle(color: AppColors.nero, fontSize: 24, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 4),
-                    Text(auto.targa,
-                        style: const TextStyle(color: AppColors.grigio, fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 4),
-                    Text(auto.stato == StatoAuto.attivo ? 'Attiva' : 'Non attiva',
-                        style: TextStyle(color: statoColor, fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(
+                      auto.nomeCompleto,
+                      style: const TextStyle(
+                        color: AppColors.nero,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      auto.targa,
+                      style: const TextStyle(
+                        color: AppColors.grigio,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      auto.stato == StatoAuto.attivo ? 'Attiva' : 'Non attiva',
+                      style: TextStyle(
+                        color: statoColor,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     Icon(Icons.alarm, size: 28, color: svegliaColor),
                   ],

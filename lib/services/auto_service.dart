@@ -15,9 +15,29 @@ class AutoService {
     return data == null ? null : Auto.fromJson(data);
   }
 
+  Future<Auto?> getSingolaAuto(String targa) async {
+    final data = await _client
+        .from('auto')
+        .select()
+        .eq('targa', targa)
+        .order('targa', ascending: false)
+        .maybeSingle();
+    return data == null ? null : Auto.fromJson(data);
+  }
+
   Future<List<Auto>> getAutoByTarghe(List<String> targhe) async {
     if (targhe.isEmpty) return [];
     final data = await _client.from('auto').select().inFilter('targa', targhe);
+    return (data as List).map((e) => Auto.fromJson(e)).toList();
+  }
+
+  Future<List<Auto>> getAutoAttiveByTarghe(List<String> targhe) async {
+    if (targhe.isEmpty) return [];
+    final data = await _client
+        .from('auto')
+        .select()
+        .inFilter('targa', targhe)
+        .eq('stato', StatoAuto.attivo.dbValue);
     return (data as List).map((e) => Auto.fromJson(e)).toList();
   }
 

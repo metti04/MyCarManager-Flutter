@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'services/session_manager.dart';
 import 'services/supabase_service.dart';
-import 'screens/home_screen.dart';
-import 'screens/login_screen.dart';
+import 'ui/main/main_screen.dart';
+import 'ui/auth/login_screen.dart';
 import 'theme/app_theme.dart';
 
 Future<void> main() async {
@@ -38,7 +38,7 @@ class _AuthGate extends StatelessWidget {
         }
         final username = snapshot.data;
         if (username != null && username.isNotEmpty) {
-          return HomeScreen(username: username);
+          return MainScreen(username: username);
         }
         return const LoginScreen();
       },
