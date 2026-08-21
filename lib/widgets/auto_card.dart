@@ -16,6 +16,7 @@ class AutoCard extends StatelessWidget {
     final svegliaColor = scadenzaImminente ? AppColors.rosso : AppColors.verde;
 
     return Card(
+      elevation: 2,
       color: AppColors.azzurroChiaro,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -23,58 +24,59 @@ class AutoCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(40),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Immagine Auto
               Card(
                 elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                color: AppColors.bianco,
                 child: Container(
-                  width: 110,
-                  height: 110,
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.bianco,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(Icons.directions_car, size: 60, color: AppColors.blu),
+                  width: 90,
+                  height: 90,
+                  padding: const EdgeInsets.all(10),
+                  child: const Icon(Icons.directions_car, size: 50, color: AppColors.blu),
                 ),
               ),
-              const SizedBox(width: 20),
+              const SizedBox(width: 16),
+              // Info Auto
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       auto.nomeCompleto,
                       style: const TextStyle(
                         color: AppColors.nero,
-                        fontSize: 24,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+                    const SizedBox(height: 2),
                     Text(
                       auto.targa,
                       style: const TextStyle(
                         color: AppColors.grigio,
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+                    const SizedBox(height: 4),
                     Text(
-                      auto.stato == StatoAuto.attivo ? 'Attiva' : 'Non attiva',
+                      auto.stato == StatoAuto.attivo ? 'Attiva' : 'Inattiva',
                       style: TextStyle(
                         color: statoColor,
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Icon(Icons.alarm, size: 28, color: svegliaColor),
                   ],
                 ),
               ),
+              // Icona Sveglia
+              Icon(Icons.alarm, size: 28, color: svegliaColor),
             ],
           ),
         ),

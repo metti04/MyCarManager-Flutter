@@ -4,15 +4,19 @@ import '../../services/session_manager.dart';
 import '../../models/utente.dart';
 
 class LoginViewModel extends ChangeNotifier {
+  // Servizi per la gestione degli utenti e della sessione locale
   final _utenteService = UtenteService();
   final _sessionManager = SessionManager();
 
+  // Stato di caricamento per la UI
   bool _loading = false;
   bool get loading => _loading;
 
+  // Gestione dei messaggi di errore
   String? _error;
   String? get error => _error;
 
+  // Esegue il login classico tramite email e password
   Future<String?> login(String email, String password) async {
     if (email.isEmpty || password.isEmpty) {
       _error = 'Tutti i campi sono obbligatori';
@@ -25,8 +29,10 @@ class LoginViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
+      // Verifica le credenziali nel database Supabase
       final utente = await _utenteService.getUtenteByEmail(email.trim());
       if (utente != null && utente.password == password) {
+        // Salva la sessione se le credenziali sono corrette
         await _sessionManager.saveSession(utente.username);
         _loading = false;
         notifyListeners();
@@ -45,14 +51,14 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
 
+  // Gestisce il login tramite Google (simulato per parità con la versione Flutter attuale)
   Future<String?> loginWithGoogle() async {
     _loading = true;
     _error = null;
     notifyListeners();
 
     try {
-      // Simulazione Google Login (in Kotlin usava CredentialManager)
-      // In un'app reale qui servirebbe il pacchetto google_sign_in
+      // Simulazione Google Login
       await Future.delayed(const Duration(seconds: 1));
       
       const simulatedEmail = "google.user@example.com";
@@ -62,6 +68,7 @@ class LoginViewModel extends ChangeNotifier {
       var utente = await _utenteService.getUtenteByEmail(simulatedEmail);
       
       if (utente == null) {
+        // Registrazione automatica se l'utente Google non esiste nel sistema
         final baseUsername = simulatedEmail.split("@")[0];
         String finalUsername = baseUsername;
         int counter = 1;
@@ -72,7 +79,7 @@ class LoginViewModel extends ChangeNotifier {
 
         utente = Utente(
           username: finalUsername,
-          password: "changePassword", // Placeholder come in Kotlin
+          password: "changePassword", // Placeholder obbligatorio nel DB
           email: simulatedEmail,
           nome: simulatedName,
           cognome: simulatedSurname,

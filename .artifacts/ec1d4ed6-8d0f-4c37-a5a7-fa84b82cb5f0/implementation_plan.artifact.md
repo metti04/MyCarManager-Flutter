@@ -1,57 +1,32 @@
-# Traduzione e Sistemazione Progetto MyCarManager (da Kotlin a Flutter)
+# Migrazione Logica Gemini e Miglioramenti Architetturali in Flutter
 
-Questo piano descrive i passaggi per allineare il progetto Flutter all'originale in Kotlin, correggendo le discrepanze nei servizi, migliorando la navigazione e rifinendo l'interfaccia utente.
+L'obiettivo è allineare il progetto Flutter con le recenti modifiche apportate al progetto Kotlin, introducendo una gestione modulare dell'IA (Gemini) e migliorando la validazione dei dati per evitare errori di vincolo di integrità (Foreign Key).
 
-## User Review Required
+## Modifiche Proposte
 
-> [!IMPORTANT]
-> Verrà introdotto un `MainScreen` che ospiterà la `BottomNavigationBar` in modo persistente, simile alla `MainActivity` in Kotlin. Questo cambierà leggermente il flusso di navigazione attuale che apre le schermate come pagine separate.
+### 1. Dipendenze
+- **[MODIFY] [pubspec.yaml](file:///C:/Users/metti04/Documents/UNIVERSITA/mycarmanger/MyCarManagerKotlin/MyCarManager-Flutter/pubspec.yaml)**: Aggiunta di `http` per le chiamate API e `image_picker` per l'acquisizione di foto.
 
-## Proposed Changes
+### 2. Modelli Dati
+- **[NEW] [ai_data_models.dart](file:///C:/Users/metti04/Documents/UNIVERSITA/mycarmanger/MyCarManagerKotlin/MyCarManager-Flutter/lib/models/ai_data_models.dart)**: Porting dei modelli `SmartResult` e `InvoiceResult` da Kotlin a Dart.
 
-### 1. Servizi (Services)
+### 3. Servizi API (IA)
+- **[NEW] [gemini_client.dart](file:///C:/Users/metti04/Documents/UNIVERSITA/mycarmanger/MyCarManagerKotlin/MyCarManager-Flutter/lib/services/api_services/gemini_client.dart)**: Client centralizzato per la comunicazione con Google Gemini.
+- **[NEW] [auto_api_service.dart](file:///C:/Users/metti04/Documents/UNIVERSITA/mycarmanger/MyCarManagerKotlin/MyCarManager-Flutter/lib/services/api_services/auto_api_service.dart)**: Estrazione dati libretto.
+- **[NEW] [lavoro_api_service.dart](file:///C:/Users/metti04/Documents/UNIVERSITA/mycarmanger/MyCarManagerKotlin/MyCarManager-Flutter/lib/services/api_services/lavoro_api_service.dart)**: Estrazione dati fatture lavori.
+- **[NEW] [obbligo_api_service.dart](file:///C:/Users/metti04/Documents/UNIVERSITA/mycarmanger/MyCarManagerKotlin/MyCarManager-Flutter/lib/services/api_services/obbligo_api_service.dart)**: Estrazione dati bollo/assicurazione.
 
-Aggiunta di metodi mancanti e allineamento della logica con la versione Kotlin.
+### 4. UI e ViewModel
+- **[MODIFY] [censimento_screen.dart](file:///C:/Users/metti04/Documents/UNIVERSITA/mycarmanger/MyCarManagerKotlin/MyCarManager-Flutter/lib/ui/auto/censimento_screen.dart)**: Aggiunta della funzionalità di scansione nell'header.
+- **[MODIFY] [scheda_auto_screen.dart](file:///C:/Users/metti04/Documents/UNIVERSITA/mycarmanger/MyCarManagerKotlin/MyCarManager-Flutter/lib/ui/scheda_auto/scheda_auto_screen.dart)**: Aggiunta dei box di scansione nei dialoghi "Aggiungi Lavoro" e "Aggiungi Obbligo".
+- **[MODIFY] [login_viewmodel.dart](file:///C:/Users/metti04/Documents/UNIVERSITA/mycarmanger/MyCarManagerKotlin/MyCarManager-Flutter/lib/ui/auth/login_viewmodel.dart)**: Aggiunta commenti e allineamento logica login Google.
 
-#### [MODIFY] [auto_service.dart](file:///C:/Users/metti04/Documents/UNIVERSITA/mycarmanger/MyCarManagerKotlin/MyCarManager-Flutter/lib/services/auto_service.dart)
-- Aggiunta di `getAutoAttiveByTarghe(List<String> targhe)`.
-- Aggiunta di `getSingolaAuto(String targa)` con ordinamento decrescente.
+### 5. Validazione (Fix Foreign Key)
+- Implementazione della protezione del campo "Targa" durante l'auto-compilazione per evitare l'errore riscontrato in Kotlin (violazione Foreign Key).
 
-### 2. Navigazione e Struttura UI
+## Piano di Verifica
 
-Creazione di una struttura a schede (Tabs) persistente.
-
-#### [NEW] [main_screen.dart](file:///C:/Users/metti04/Documents/UNIVERSITA/mycarmanger/MyCarManagerKotlin/MyCarManager-Flutter/lib/screens/main_screen.dart)
-- Schermata principale che contiene `BottomNavigationBar`.
-- Gestisce il passaggio tra `HomeScreen`, `SpeseScreen`, `ScadenzeScreen` e `ProfiloScreen`.
-
-#### [MODIFY] [main.dart](file:///C:/Users/metti04/Documents/UNIVERSITA/mycarmanger/MyCarManagerKotlin/MyCarManager-Flutter/lib/main.dart)
-- Aggiornamento della `_AuthGate` per reindirizzare a `MainScreen` invece di `HomeScreen`.
-
-### 3. Raffinamento Schermate (Screens)
-
-#### [MODIFY] [home_screen.dart](file:///C:/Users/metti04/Documents/UNIVERSITA/mycarmanger/MyCarManagerKotlin/MyCarManager-Flutter/lib/screens/home_screen.dart)
-- Rimozione della `bottomNavigationBar` (ora gestita da `MainScreen`).
-- Implementazione della logica dei colori per il box "Scadenze" (Rosso se scadute, Arancio se imminenti, Verde altrimenti).
-- Utilizzo di `getAutoAttiveByTarghe` per il calcolo di spese e scadenze.
-
-#### [MODIFY] [spese_screen.dart](file:///C:/Users/metti04/Documents/UNIVERSITA/mycarmanger/MyCarManagerKotlin/MyCarManager-Flutter/lib/screens/spese_screen.dart)
-- Adattamento per essere visualizzata come tab del `MainScreen`.
-- Rimozione del `Scaffold` o aggiustamento degli insets se necessario.
-
-#### [MODIFY] [scadenze_screen.dart](file:///C:/Users/metti04/Documents/UNIVERSITA/mycarmanger/MyCarManagerKotlin/MyCarManager-Flutter/lib/screens/scadenze_screen.dart)
-- Adattamento per essere visualizzata come tab del `MainScreen`.
-
-#### [MODIFY] [profilo_screen.dart](file:///C:/Users/metti04/Documents/UNIVERSITA/mycarmanger/MyCarManagerKotlin/MyCarManager-Flutter/lib/screens/profilo_screen.dart)
-- Rimozione del `Scaffold` o adattamento per la navigazione tab.
-
-## Verification Plan
-
-### Automated Tests
-- Non sono presenti test automatizzati al momento. La verifica sarà manuale.
-
-### Manual Verification
-- Avvio dell'app e verifica del corretto login.
-- Verifica della persistenza della Bottom Navigation tra le 4 sezioni principali.
-- Verifica che il box "Scadenze" nella Home cambi colore correttamente in base alle scadenze presenti.
-- Verifica che le spese e scadenze vengano caricate solo per le auto attive (come in Kotlin).
+### Manuale
+1. Verificare che la scansione del libretto in "Censimento" popoli correttamente i campi.
+2. Verificare che nei dialoghi di aggiunta lavoro/obbligo sia presente l'opzione "Scansiona".
+3. Verificare che la targa non venga sovrascritta se già impostata e disabilitata.

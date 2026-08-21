@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../models/auto.dart';
 import '../../models/enums.dart';
+import '../../models/ai_data_models.dart';
+import '../../services/api_services/auto_api_service.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/blue_header_card.dart';
 import 'censimento_viewmodel.dart';
@@ -15,6 +18,9 @@ class CensimentoScreen extends StatefulWidget {
 }
 
 class _CensimentoScreenState extends State<CensimentoScreen> {
+  final _autoApiService = AutoApiService();
+  final _picker = ImagePicker();
+
   final _targaController = TextEditingController();
   final _modelloController = TextEditingController();
   final _marcaController = TextEditingController();
@@ -39,9 +45,31 @@ class _CensimentoScreenState extends State<CensimentoScreen> {
             body: SafeArea(
               child: Column(
                 children: [
-                  const BlueHeaderCard(
+                  BlueHeaderCard(
                     title: 'Censisci nuova auto',
-                    height: 180,
+                    height: 220,
+                    actionBox: InkWell(
+                      onTap: _scansionaLibretto,
+                      child: Container(
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          color: AppColors.bianco.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(color: AppColors.bianco, width: 1),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.document_scanner, color: AppColors.bianco),
+                            SizedBox(width: 10),
+                            Text(
+                              'Scansiona Libretto',
+                              style: TextStyle(color: AppColors.bianco, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                   Expanded(
                     child: SingleChildScrollView(
@@ -87,7 +115,7 @@ class _CensimentoScreenState extends State<CensimentoScreen> {
                                     minimumSize: const Size.fromHeight(60),
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                                   ),
-                                  child: const Text('Annulla', style: TextStyle(fontSize: 18)),
+                                  child: const Text('Annulla', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                                 ),
                               ),
                               const SizedBox(width: 15),
@@ -121,7 +149,7 @@ class _CensimentoScreenState extends State<CensimentoScreen> {
                                   ),
                                   child: viewModel.loading
                                       ? const CircularProgressIndicator(color: AppColors.bianco)
-                                      : const Text('Salva', style: TextStyle(fontSize: 18)),
+                                      : const Text('Salva', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                                 ),
                               ),
                             ],
@@ -138,6 +166,46 @@ class _CensimentoScreenState extends State<CensimentoScreen> {
         },
       ),
     );
+  }
+
+  void _scansionaLibretto() async {
+    final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
+    if (photo == null) return;
+
+    if (!mounted) return;
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Analisi libretto in corso...'), duration: Duration(seconds: 2)),
+    );
+
+    final bytes = await photo.readAsBytes();
+    final result = await _autoApiService.extractCarData(bytes);
+
+    if (result != null && mounted) {
+      setState(() {
+        for (var item in result.extractedData) {
+          switch (item.type) {
+            case DataType.plate: _targaController.text = item.value; break;
+            case DataType.brand: _marcaController.text = item.value; break;
+            case DataType.model: _modelloController.text = item.value; break;
+            case DataType.displacement: _cilindrataController.text = item.value; break;
+            case DataType.power: _potenzaController.text = item.value; break;
+            case DataType.engine: _identificatoreMotoreController.text = item.value; break;
+            case DataType.vin: _vinController.text = item.value; break;
+            case DataType.fuel: 
+              _alimentazione = Alimentazione.values.firstWhere(
+                (a) => a.dbValue.toLowerCase() == item.value.toLowerCase(),
+                orElse: () => _alimentazione,
+              );
+              break;
+            default: break;
+          }
+        }
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Dati estratti con successo!')),
+      );
+    }
   }
 
   Widget _buildWhiteField(TextEditingController controller, String label, {TextInputType keyboardType = TextInputType.text}) {

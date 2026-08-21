@@ -35,8 +35,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       clipBehavior: Clip.none,
                       children: [
                         const BlueHeaderCard(
-                          title: '', // Lasciamo vuoto il titolo nel widget base
-                          height: 200,
+                          title: '',
+                          height: 220,
                         ),
                         Positioned(
                           top: 40,
@@ -47,22 +47,22 @@ class _HomeScreenState extends State<HomeScreen> {
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               color: AppColors.bianco,
-                              fontSize: 26,
+                              fontSize: 30,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
                         Positioned(
-                          bottom: -40,
+                          bottom: -30, // Posizionato per sovrapporsi
                           left: 24,
                           right: 24,
                           child: _buildStatsCard(viewModel),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 50), // Spazio per la card che sporge
+                    const SizedBox(height: 45), // Spazio per la card che sporge
                     const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                      padding: EdgeInsets.only(left: 24, top: 10, bottom: 5),
                       child: Text(
                         'I tuoi veicoli',
                         style: TextStyle(
@@ -78,13 +78,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           : viewModel.autos.isEmpty
                               ? const Center(child: Text('Nessun veicolo censito.'))
                               : ListView.builder(
-                                  padding: const EdgeInsets.only(top: 8),
+                                  padding: const EdgeInsets.only(top: 8, bottom: 80),
                                   itemCount: viewModel.autos.length,
                                   itemBuilder: (context, index) {
                                     final auto = viewModel.autos[index];
                                     return AutoCard(
                                       auto: auto,
-                                      scadenzaImminente: false,
+                                      scadenzaImminente: false, // Potrebbe essere calcolato
                                       onTap: () async {
                                         await Navigator.of(context).push(
                                           MaterialPageRoute(
@@ -108,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               backgroundColor: AppColors.blu,
               icon: const Icon(Icons.add, color: AppColors.bianco),
-              label: const Text('Aggiungi Veicolo', style: TextStyle(color: AppColors.bianco)),
+              label: const Text('Aggiungi Veicolo', style: TextStyle(color: AppColors.bianco, fontWeight: FontWeight.bold)),
             ),
           );
         },
@@ -118,39 +118,50 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildStatsCard(HomeViewModel viewModel) {
     return Card(
-      elevation: 8,
-      shadowColor: Colors.black26,
+      elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
       color: AppColors.bianco,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.symmetric(vertical: 12),
         child: Row(
           children: [
+            // Sezione Spese
             Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.monetization_on_outlined, color: AppColors.blu, size: 32),
-                  const Text('Spese del mese', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.nero)),
-                  Text(
-                    '${viewModel.speseDelMese.toStringAsFixed(2)}€',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.blu),
-                  ),
-                ],
+              child: InkWell(
+                onTap: () {
+                   // Naviga a spese se necessario
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.euro, color: AppColors.blu, size: 28),
+                    const Text('Spese', style: TextStyle(fontSize: 14, color: AppColors.nero)),
+                    Text(
+                      '${viewModel.speseDelMese.toStringAsFixed(2)}€',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.blu),
+                    ),
+                  ],
+                ),
               ),
             ),
-            Container(width: 1, height: 50, color: AppColors.grigino),
+            Container(width: 1, height: 40, color: AppColors.grigino),
+            // Sezione Scadenze
             Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.alarm_on_outlined, color: AppColors.arancione, size: 32),
-                  const Text('Scadenze Imminenti', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.nero)),
-                  Text(
-                    '${viewModel.scadenzeImminenti}',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.arancione),
-                  ),
-                ],
+              child: InkWell(
+                onTap: () {
+                   // Naviga a scadenze se necessario
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.alarm, color: AppColors.verde, size: 28),
+                    const Text('Scadenze', style: TextStyle(fontSize: 14, color: AppColors.nero)),
+                    Text(
+                      '${viewModel.scadenzeImminenti}',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.verde),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

@@ -28,28 +28,20 @@ class _LoginScreenState extends State<LoginScreen> {
               bottom: false,
               child: Column(
                 children: [
-                  const Expanded(
-                    flex: 2,
+                  // Header con Logo
+                  Container(
+                    padding: const EdgeInsets.all(24),
                     child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.directions_car, size: 100, color: AppColors.bianco),
-                          SizedBox(height: 10),
-                          Text(
-                            'MyCarManager',
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.bianco,
-                            ),
-                          ),
-                        ],
+                      child: Image.asset(
+                        'assets/images/iconaloginregistrazione.png',
+                        width: 256,
+                        height: 216,
+                        fit: BoxFit.contain,
                       ),
                     ),
                   ),
+                  // Contenitore Bianco Arrotondato
                   Expanded(
-                    flex: 3,
                     child: Container(
                       width: double.infinity,
                       decoration: const BoxDecoration(
@@ -65,16 +57,16 @@ class _LoginScreenState extends State<LoginScreen> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             const SizedBox(height: 10),
-                            TextField(
+                            _buildRoundedTextField(
                               controller: _emailController,
+                              label: 'Email',
                               keyboardType: TextInputType.emailAddress,
-                              decoration: const InputDecoration(labelText: 'Email'),
                             ),
                             const SizedBox(height: 16),
-                            TextField(
+                            _buildRoundedTextField(
                               controller: _passwordController,
+                              label: 'Password',
                               obscureText: true,
-                              decoration: const InputDecoration(labelText: 'Password'),
                             ),
                             const SizedBox(height: 24),
                             if (viewModel.error != null)
@@ -101,13 +93,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                         );
                                       }
                                     },
+                              style: FilledButton.styleFrom(
+                                backgroundColor: AppColors.blu,
+                                minimumSize: const Size.fromHeight(60),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                              ),
                               child: viewModel.loading
                                   ? const SizedBox(
                                       width: 20,
                                       height: 20,
                                       child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.bianco),
                                     )
-                                  : const Text('Accedi'),
+                                  : const Text('Accedi', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                             ),
                             const SizedBox(height: 10),
                             const Text(
@@ -128,8 +125,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                         );
                                       }
                                     },
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppColors.blu,
+                                minimumSize: const Size.fromHeight(60),
+                                side: const BorderSide(color: AppColors.blu, width: 2),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                              ),
                               icon: const Icon(Icons.login),
-                              label: const Text('Google Sign In'),
+                              label: const Text('Google Sign In', style: TextStyle(fontSize: 18)),
                             ),
                             const SizedBox(height: 12),
                             TextButton(
@@ -138,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               child: const Text(
                                 'Registrati',
-                                style: TextStyle(color: AppColors.bluIntenso, fontWeight: FontWeight.bold),
+                                style: TextStyle(color: AppColors.bluIntenso, fontWeight: FontWeight.bold, fontSize: 16),
                               ),
                             ),
                           ],
@@ -151,6 +154,34 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildRoundedTextField({
+    required TextEditingController controller,
+    required String label,
+    bool obscureText = false,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      style: const TextStyle(color: AppColors.blu),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: AppColors.blu),
+        hintStyle: const TextStyle(color: AppColors.blu),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: const BorderSide(color: AppColors.blu),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: const BorderSide(color: AppColors.blu, width: 2),
+        ),
       ),
     );
   }

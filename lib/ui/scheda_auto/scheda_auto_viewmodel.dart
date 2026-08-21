@@ -8,10 +8,12 @@ import '../../services/lavoro_service.dart';
 import '../../services/obbligo_service.dart';
 
 class SchedaAutoViewModel extends ChangeNotifier {
+  // Servizi database per auto, lavori e obblighi fiscali
   final _autoService = AutoService();
   final _lavoroService = LavoroService();
   final _obbligoService = ObbligoService();
 
+  // Dati del veicolo e liste correlate
   Auto? _auto;
   Auto? get auto => _auto;
 
@@ -21,17 +23,21 @@ class SchedaAutoViewModel extends ChangeNotifier {
   List<Obbligo> _obblighi = [];
   List<Obbligo> get obblighi => _obblighi;
 
+  // Stato di caricamento
   bool _loading = false;
   bool get loading => _loading;
 
+  // Tab attualmente selezionata nella schermata (Storico/Scadenze/Dettagli)
   int _currentTab = 0;
   int get currentTab => _currentTab;
 
+  // Cambia la tab visualizzata e notifica la UI
   void setTab(int index) {
     _currentTab = index;
     notifyListeners();
   }
 
+  // Carica tutte le informazioni di un veicolo data la targa
   Future<void> caricaDati(String targa) async {
     _loading = true;
     notifyListeners();
@@ -48,6 +54,7 @@ class SchedaAutoViewModel extends ChangeNotifier {
     }
   }
 
+  // Attiva o disattiva il veicolo (es. se venduto o fermo)
   Future<void> toggleStato() async {
     if (_auto == null) return;
     if (_auto!.stato == StatoAuto.attivo) {
@@ -58,42 +65,49 @@ class SchedaAutoViewModel extends ChangeNotifier {
     await caricaDati(_auto!.targa);
   }
 
+  // Aggiorna il chilometraggio attuale del veicolo
   Future<void> updateKm(int newKm) async {
     if (_auto == null) return;
     await _autoService.updateChilometraggio(_auto!.targa, newKm);
     await caricaDati(_auto!.targa);
   }
 
+  // Rimuove il veicolo dal database
   Future<void> eliminaAuto() async {
     if (_auto == null) return;
     await _autoService.eliminaAuto(_auto!.targa);
   }
 
+  // Elimina un singolo intervento di manutenzione
   Future<void> eliminaLavoro(int id) async {
     await _lavoroService.eliminaLavoro(id);
     if (_auto != null) await caricaDati(_auto!.targa);
   }
 
+  // Elimina un obbligo fiscale
   Future<void> eliminaObbligo(int id) async {
     await _obbligoService.eliminaObbligo(id);
     if (_auto != null) await caricaDati(_auto!.targa);
   }
 
+  // Salva le modifiche a un lavoro o ne inserisce uno nuovo
   Future<void> aggiornaLavoro(Lavoro lavoro) async {
     await _lavoroService.aggiornaLavoro(lavoro);
     if (_auto != null) await caricaDati(_auto!.targa);
   }
 
+  // Salva le modifiche a un obbligo o ne inserisce uno nuovo
   Future<void> aggiornaObbligo(Obbligo obbligo) async {
     await _obbligoService.aggiornaObbligo(obbligo);
     if (_auto != null) await caricaDati(_auto!.targa);
   }
 
-  // Spese getters
+  // Getters per le statistiche delle spese
   double get totLavori => _lavori.where((l) => l.stato == StatoLavoro.eseguito).fold(0, (sum, l) => sum + (l.costo ?? 0));
   double get totObblighi => _obblighi.where((o) => o.stato == StatoObbligo.pagato).fold(0, (sum, o) => sum + (o.costo ?? 0));
   double get totaleGenerale => totLavori + totObblighi;
 
+  // Restituisce una lista unificata di lavori e obblighi ordinata per data decrescente
   List<dynamic> get itemsSpese {
     final l = _lavori.where((l) => l.stato == StatoLavoro.eseguito).toList();
     final o = _obblighi.where((o) => o.stato == StatoObbligo.pagato).toList();
@@ -104,7 +118,7 @@ class SchedaAutoViewModel extends ChangeNotifier {
     });
   }
 
-  // Scadenze getters
+  // Getters per il monitoraggio delle scadenze
   int get countScadute {
     final now = DateTime.now();
     int count = 0;
@@ -129,6 +143,7 @@ class SchedaAutoViewModel extends ChangeNotifier {
     return count;
   }
 
+  // Restituisce la lista degli elementi da eseguire o pagare
   List<dynamic> get itemsScadenze {
     final l = _lavori.where((l) => l.stato == StatoLavoro.daEseguire).toList();
     final o = _obblighi.where((o) => o.stato == StatoObbligo.daPagare).toList();

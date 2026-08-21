@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../../models/utente.dart';
-import '../../theme/app_colors.dart';
-import '../../widgets/blue_header_card.dart';
-import 'modifica_dati_viewmodel.dart';
+import 'package:my_car_manager/theme/app_colors.dart';
+import 'package:my_car_manager/widgets/blue_header_card.dart';
+import 'package:my_car_manager/models/utente.dart';
+import 'package:my_car_manager/ui/profilo/modifica_dati_viewmodel.dart';
 
 class ModificaDatiScreen extends StatefulWidget {
   final String username;
@@ -25,10 +25,13 @@ class _ModificaDatiScreenState extends State<ModificaDatiScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final df = DateFormat('dd/MM/yyyy');
+
     return ChangeNotifierProvider(
       create: (_) => ModificaDatiViewModel()..caricaDati(widget.username),
       child: Consumer<ModificaDatiViewModel>(
         builder: (context, viewModel, _) {
+          // Popolamento iniziale dei campi
           if (viewModel.utente != null && _nomeController.text.isEmpty) {
             final u = viewModel.utente!;
             _nomeController.text = u.nome;
@@ -39,13 +42,17 @@ class _ModificaDatiScreenState extends State<ModificaDatiScreen> {
             _dataNascita = u.dataDiNascita;
           }
 
-          final df = DateFormat('dd/MM/yyyy');
           return Scaffold(
             backgroundColor: AppColors.bianco,
             body: SafeArea(
               child: Column(
                 children: [
-                  const BlueHeaderCard(title: 'I TUOI DATI', height: 180),
+                  BlueHeaderCard(
+                    title: viewModel.utente != null 
+                        ? '${viewModel.utente!.nome} ${viewModel.utente!.cognome}'
+                        : 'Modifica Dati',
+                    height: 180,
+                  ),
                   Expanded(
                     child: viewModel.loading
                         ? const Center(child: CircularProgressIndicator())
@@ -95,16 +102,17 @@ class _ModificaDatiScreenState extends State<ModificaDatiScreen> {
                                       Expanded(
                                         child: FilledButton(
                                           onPressed: () async {
-                                            final success = await viewModel.salva(Utente(
+                                            final updatedUtente = Utente(
                                               username: _usernameController.text,
                                               password: _passwordController.text,
                                               email: _emailController.text,
                                               nome: _nomeController.text,
                                               cognome: _cognomeController.text,
                                               dataDiNascita: _dataNascita ?? DateTime.now(),
-                                            ));
+                                            );
+                                            final success = await viewModel.salva(updatedUtente);
                                             if (success && context.mounted) {
-                                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Salvato!')));
+                                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Dati aggiornati!')));
                                               Navigator.of(context).pop();
                                             }
                                           },
@@ -113,7 +121,9 @@ class _ModificaDatiScreenState extends State<ModificaDatiScreen> {
                                             minimumSize: const Size.fromHeight(60),
                                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                                           ),
-                                          child: const Text('Salva'),
+                                          child: viewModel.loading
+                                              ? const CircularProgressIndicator(color: AppColors.bianco)
+                                              : const Text('Salva'),
                                         ),
                                       ),
                                     ],
@@ -138,8 +148,10 @@ class _ModificaDatiScreenState extends State<ModificaDatiScreen> {
       child: TextField(
         controller: controller,
         obscureText: obscure,
+        style: const TextStyle(color: AppColors.blu, fontWeight: FontWeight.bold),
         decoration: InputDecoration(
           labelText: label,
+          labelStyle: const TextStyle(color: AppColors.blu),
           filled: true,
           fillColor: AppColors.bianco,
           border: OutlineInputBorder(
@@ -161,6 +173,7 @@ class _ModificaDatiScreenState extends State<ModificaDatiScreen> {
       child: InputDecorator(
         decoration: InputDecoration(
           labelText: label,
+          labelStyle: const TextStyle(color: AppColors.blu),
           filled: true,
           fillColor: AppColors.bianco,
           border: OutlineInputBorder(
@@ -172,7 +185,7 @@ class _ModificaDatiScreenState extends State<ModificaDatiScreen> {
             borderSide: const BorderSide(color: AppColors.nero),
           ),
         ),
-        child: Text(value, style: const TextStyle(fontSize: 16)),
+        child: Text(value, style: const TextStyle(fontSize: 16, color: AppColors.blu, fontWeight: FontWeight.bold)),
       ),
     );
   }

@@ -30,18 +30,18 @@ class _RegistrazioneScreenState extends State<RegistrazioneScreen> {
         builder: (context, viewModel, _) {
           return Scaffold(
             backgroundColor: AppColors.blu,
-            appBar: AppBar(
-              title: const Text('Registrazione'),
-              backgroundColor: Colors.transparent,
-            ),
             body: SafeArea(
               bottom: false,
               child: Column(
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                    child: Icon(Icons.person_add, size: 80, color: AppColors.bianco),
+                  // Header con Icona o Logo
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 30),
+                    child: const Center(
+                      child: Icon(Icons.person_add, size: 80, color: AppColors.bianco),
+                    ),
                   ),
+                  // Contenitore Bianco Arrotondato
                   Expanded(
                     child: Container(
                       width: double.infinity,
@@ -57,22 +57,22 @@ class _RegistrazioneScreenState extends State<RegistrazioneScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            TextField(controller: _nomeController, decoration: const InputDecoration(labelText: 'Nome')),
+                            _buildRoundedTextField(controller: _nomeController, label: 'Nome'),
                             const SizedBox(height: 12),
-                            TextField(controller: _cognomeController, decoration: const InputDecoration(labelText: 'Cognome')),
+                            _buildRoundedTextField(controller: _cognomeController, label: 'Cognome'),
                             const SizedBox(height: 12),
-                            TextField(controller: _usernameController, decoration: const InputDecoration(labelText: 'Username')),
+                            _buildRoundedTextField(controller: _usernameController, label: 'Username'),
                             const SizedBox(height: 12),
-                            TextField(
+                            _buildRoundedTextField(
                               controller: _emailController,
+                              label: 'Email',
                               keyboardType: TextInputType.emailAddress,
-                              decoration: const InputDecoration(labelText: 'Email'),
                             ),
                             const SizedBox(height: 12),
-                            TextField(
+                            _buildRoundedTextField(
                               controller: _passwordController,
+                              label: 'Password',
                               obscureText: true,
-                              decoration: const InputDecoration(labelText: 'Password'),
                             ),
                             const SizedBox(height: 12),
                             InkWell(
@@ -86,8 +86,19 @@ class _RegistrazioneScreenState extends State<RegistrazioneScreen> {
                                 if (picked != null) setState(() => _dataNascita = picked);
                               },
                               child: InputDecorator(
-                                decoration: const InputDecoration(labelText: 'Data di nascita'),
-                                child: Text(_dataNascita == null ? '' : df.format(_dataNascita!)),
+                                decoration: InputDecoration(
+                                  labelText: 'Data di nascita',
+                                  labelStyle: const TextStyle(color: AppColors.blu),
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(25),
+                                    borderSide: const BorderSide(color: AppColors.blu),
+                                  ),
+                                ),
+                                child: Text(
+                                  _dataNascita == null ? '' : df.format(_dataNascita!),
+                                  style: const TextStyle(color: AppColors.blu, fontWeight: FontWeight.bold),
+                                ),
                               ),
                             ),
                             const SizedBox(height: 24),
@@ -111,13 +122,26 @@ class _RegistrazioneScreenState extends State<RegistrazioneScreen> {
                                         );
                                       }
                                     },
+                              style: FilledButton.styleFrom(
+                                backgroundColor: AppColors.blu,
+                                minimumSize: const Size.fromHeight(60),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                              ),
                               child: viewModel.loading
                                   ? const SizedBox(
                                       width: 20,
                                       height: 20,
                                       child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.bianco),
                                     )
-                                  : const Text('Registrati'),
+                                  : const Text('Registrati', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                            ),
+                            const SizedBox(height: 12),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text(
+                                'Hai già un account? Accedi',
+                                style: TextStyle(color: AppColors.bluIntenso, fontWeight: FontWeight.bold),
+                              ),
                             ),
                           ],
                         ),
@@ -129,6 +153,33 @@ class _RegistrazioneScreenState extends State<RegistrazioneScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildRoundedTextField({
+    required TextEditingController controller,
+    required String label,
+    bool obscureText = false,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      style: const TextStyle(color: AppColors.blu),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: AppColors.blu),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: const BorderSide(color: AppColors.blu),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: const BorderSide(color: AppColors.blu, width: 2),
+        ),
       ),
     );
   }
