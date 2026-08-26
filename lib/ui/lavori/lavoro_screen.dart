@@ -1,7 +1,10 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:pdfx/pdfx.dart';
 import 'package:my_car_manager/models/lavoro.dart';
 import 'package:my_car_manager/models/enums.dart';
 import 'package:my_car_manager/theme/app_colors.dart';
@@ -89,26 +92,27 @@ class _LavoroScreenState extends State<LavoroScreen> {
                     title: isModifica ? 'Modifica lavoro' : 'Inserisci un nuovo lavoro',
                     height: 220,
                     actionBox: InkWell(
-                      onTap: () async {
-                        final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
-                        if (photo != null) {
-                          final bytes = await photo.readAsBytes();
-                          viewModel.estraiDatiDaFattura(bytes);
-                        }
-                      },
+                      onTap: () => _mostraOpzioniScansione(viewModel),
                       child: Container(
                         padding: const EdgeInsets.all(15),
                         decoration: BoxDecoration(
-                          color: AppColors.bianco.withValues(alpha: 0.2),
+                          color: AppColors.bianco.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(15),
                           border: Border.all(color: AppColors.bianco, width: 1),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.camera_alt, color: AppColors.bianco),
-                            SizedBox(width: 10),
-                            Text(
+                            if (viewModel.loading)
+                               const SizedBox(
+                                 width: 20,
+                                 height: 20,
+                                 child: CircularProgressIndicator(color: AppColors.bianco, strokeWidth: 2),
+                               )
+                            else
+                               const Icon(Icons.document_scanner, color: AppColors.bianco),
+                            const SizedBox(width: 10),
+                            const Text(
                               'Scansiona Fattura',
                               style: TextStyle(color: AppColors.bianco, fontWeight: FontWeight.bold),
                             ),
@@ -264,5 +268,66 @@ class _LavoroScreenState extends State<LavoroScreen> {
         child: Text(value, style: const TextStyle(color: AppColors.blu, fontWeight: FontWeight.bold, fontSize: 16)),
       ),
     );
+  }
+
+  void _mostraOpzioniScansione(LavoroViewModel viewModel) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt, color: AppColors.blu),
+              title: const Text('Fotocamera'),
+              onTap: () async {
+                Navigator.pop(context);
+                final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
+                if (photo != null) viewModel.estraiDatiDaFattura(await photo.readAsBytes());
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library, color: AppColors.blu),
+              title: const Text('Galleria'),
+              onTap: () async {
+                Navigator.pop(context);
+                final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+                if (image != null) viewModel.estraiDatiDaFattura(await image.readAsBytes());
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.picture_as_pdf, color: AppColors.blu),
+              title: const Text('Documenti (PDF)'),
+              onTap: () async {
+                Navigator.pop(context);
+                final FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
+                if (result != null && result.files.single.path != null) {
+                  final bytes = await _renderPdfPage(result.files.single.path!);
+                  if (bytes != null) viewModel.estraiDatiDaFattura(bytes);
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<Uint8List?> _renderPdfPage(String path) async {
+    try {
+      final document = await PdfDocument.openFile(path);
+      final page = await document.getPage(1);
+      final pageImage = await page.render(
+        width: page.width * 2,
+        height: page.height * 2,
+        format: PdfPageImageFormat.jpeg,
+      );
+      await page.close();
+      await document.close();
+      return pageImage?.bytes;
+    } catch (e) {
+      debugPrint('Errore rendering PDF: $e');
+      return null;
+    }
   }
 }

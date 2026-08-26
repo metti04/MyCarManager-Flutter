@@ -23,7 +23,7 @@ class RegistrazioneViewModel extends ChangeNotifier {
       
       // Salvataggio sul cloud e login automatico locale
       await _utenteService.inserisciUtente(utente);
-      await _sessionManager.saveSession(utente.username);
+      await _sessionManager.saveUser(utente);
       return true;
     } catch (e) {
       return false;

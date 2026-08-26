@@ -28,7 +28,14 @@ class UtenteService {
     await _client.from('utenti').insert(utente.toJson());
   }
 
-  Future<void> aggiornaUtente(Utente utente) async {
+  Future<void> aggiornaUtente(Utente utente, {String? vecchioUsername}) async {
     await _client.from('utenti').update(utente.toJson()).eq('email', utente.email);
+
+    if (vecchioUsername != null && vecchioUsername != utente.username) {
+      await _client
+          .from('possedere')
+          .update({'usernameUtente': utente.username})
+          .eq('usernameUtente', vecchioUsername);
+    }
   }
 }

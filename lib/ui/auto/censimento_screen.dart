@@ -1,7 +1,10 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:pdfx/pdfx.dart';
 import '../../models/auto.dart';
 import '../../models/enums.dart';
 import '../../models/ai_data_models.dart';
@@ -40,6 +43,17 @@ class _CensimentoScreenState extends State<CensimentoScreen> {
       create: (_) => CensimentoViewModel(),
       child: Consumer<CensimentoViewModel>(
         builder: (context, viewModel, _) {
+          // Ascolta i dati estratti dall'IA
+          if (viewModel.datiEstratti != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+               _popolaCampiDaAI(viewModel.datiEstratti!);
+               viewModel.resetDatiEstratti();
+               ScaffoldMessenger.of(context).showSnackBar(
+                 const SnackBar(content: Text('Dati estratti con successo!')),
+               );
+            });
+          }
+
           return Scaffold(
             backgroundColor: AppColors.bluChiaro2,
             body: SafeArea(
@@ -49,7 +63,7 @@ class _CensimentoScreenState extends State<CensimentoScreen> {
                     title: 'Censisci nuova auto',
                     height: 220,
                     actionBox: InkWell(
-                      onTap: _scansionaLibretto,
+                      onTap: () => _mostraOpzioniScansione(viewModel),
                       child: Container(
                         padding: const EdgeInsets.all(15),
                         decoration: BoxDecoration(
@@ -57,12 +71,19 @@ class _CensimentoScreenState extends State<CensimentoScreen> {
                           borderRadius: BorderRadius.circular(15),
                           border: Border.all(color: AppColors.bianco, width: 1),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.document_scanner, color: AppColors.bianco),
-                            SizedBox(width: 10),
-                            Text(
+                            if (viewModel.loading)
+                               const SizedBox(
+                                 width: 20,
+                                 height: 20,
+                                 child: CircularProgressIndicator(color: AppColors.bianco, strokeWidth: 2),
+                               )
+                            else
+                               const Icon(Icons.document_scanner, color: AppColors.bianco),
+                            const SizedBox(width: 10),
+                            const Text(
                               'Scansiona Libretto',
                               style: TextStyle(color: AppColors.bianco, fontWeight: FontWeight.bold),
                             ),
@@ -168,44 +189,93 @@ class _CensimentoScreenState extends State<CensimentoScreen> {
     );
   }
 
-  void _scansionaLibretto() async {
-    final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
-    if (photo == null) return;
-
-    if (!mounted) return;
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Analisi libretto in corso...'), duration: Duration(seconds: 2)),
+  void _mostraOpzioniScansione(CensimentoViewModel viewModel) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt, color: AppColors.blu),
+              title: const Text('Fotocamera'),
+              onTap: () async {
+                Navigator.pop(context);
+                final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
+                if (photo != null) viewModel.estraiDatiDaLibretto(await photo.readAsBytes());
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library, color: AppColors.blu),
+              title: const Text('Galleria'),
+              onTap: () async {
+                Navigator.pop(context);
+                final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+                if (image != null) viewModel.estraiDatiDaLibretto(await image.readAsBytes());
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.picture_as_pdf, color: AppColors.blu),
+              title: const Text('Documenti (PDF)'),
+              onTap: () async {
+                Navigator.pop(context);
+                final FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
+                if (result != null && result.files.single.path != null) {
+                  final bytes = await _renderPdfPage(result.files.single.path!);
+                  if (bytes != null) viewModel.estraiDatiDaLibretto(bytes);
+                }
+              },
+            ),
+          ],
+        ),
+      ),
     );
+  }
 
-    final bytes = await photo.readAsBytes();
-    final result = await _autoApiService.extractCarData(bytes);
-
-    if (result != null && mounted) {
-      setState(() {
-        for (var item in result.extractedData) {
-          switch (item.type) {
-            case DataType.plate: _targaController.text = item.value; break;
-            case DataType.brand: _marcaController.text = item.value; break;
-            case DataType.model: _modelloController.text = item.value; break;
-            case DataType.displacement: _cilindrataController.text = item.value; break;
-            case DataType.power: _potenzaController.text = item.value; break;
-            case DataType.engine: _identificatoreMotoreController.text = item.value; break;
-            case DataType.vin: _vinController.text = item.value; break;
-            case DataType.fuel: 
-              _alimentazione = Alimentazione.values.firstWhere(
-                (a) => a.dbValue.toLowerCase() == item.value.toLowerCase(),
-                orElse: () => _alimentazione,
-              );
-              break;
-            default: break;
-          }
-        }
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Dati estratti con successo!')),
+  Future<Uint8List?> _renderPdfPage(String path) async {
+    try {
+      final document = await PdfDocument.openFile(path);
+      final page = await document.getPage(1);
+      final pageImage = await page.render(
+        width: page.width * 2,
+        height: page.height * 2,
+        format: PdfPageImageFormat.jpeg,
       );
+      await page.close();
+      await document.close();
+      return pageImage?.bytes;
+    } catch (e) {
+      debugPrint('Errore rendering PDF: $e');
+      return null;
     }
+  }
+
+  void _popolaCampiDaAI(SmartResult result) {
+    setState(() {
+      for (var item in result.extractedData) {
+        switch (item.type) {
+          case DataType.plate: _targaController.text = item.value; break;
+          case DataType.brand: _marcaController.text = item.value; break;
+          case DataType.model: _modelloController.text = item.value; break;
+          case DataType.displacement: _cilindrataController.text = item.value; break;
+          case DataType.power: _potenzaController.text = item.value; break;
+          case DataType.engine: _identificatoreMotoreController.text = item.value; break;
+          case DataType.vin: _vinController.text = item.value; break;
+          case DataType.date:
+            try {
+               _dataImmatricolazione = DateFormat('dd/MM/yyyy').parse(item.value);
+            } catch (_) {}
+            break;
+          case DataType.fuel: 
+            _alimentazione = Alimentazione.values.firstWhere(
+              (a) => a.dbValue.toLowerCase() == item.value.toLowerCase(),
+              orElse: () => _alimentazione,
+            );
+            break;
+          default: break;
+        }
+      }
+    });
   }
 
   Widget _buildWhiteField(TextEditingController controller, String label, {TextInputType keyboardType = TextInputType.text}) {

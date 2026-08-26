@@ -14,12 +14,27 @@ class ProfiloViewModel extends ChangeNotifier {
   bool _loading = false;
   bool get loading => _loading;
 
-  Future<void> caricaDati(String username) async {
+  Future<void> caricaDati() async {
+    // 1. Carichiamo subito dalla sessione locale per velocità
+    _utente = await _sessionManager.getUser();
+    if (_utente != null) {
+      notifyListeners();
+    }
+
+    // 2. Facciamo comunque un check sul DB per aggiornare eventuali modifiche
+    final username = _utente?.username ?? await _sessionManager.getUsername();
+    if (username == null) return;
+
     _loading = true;
     notifyListeners();
 
     try {
-      _utente = await _utenteService.getUtente(username);
+      final freshUser = await _utenteService.getUtente(username);
+      if (freshUser != null) {
+        _utente = freshUser;
+        // Aggiorniamo la cache
+        await _sessionManager.saveUser(freshUser);
+      }
     } catch (e) {
       debugPrint('Errore caricamento profilo: $e');
     } finally {

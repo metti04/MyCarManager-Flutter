@@ -32,8 +32,8 @@ class LoginViewModel extends ChangeNotifier {
       // Verifica le credenziali nel database Supabase
       final utente = await _utenteService.getUtenteByEmail(email.trim());
       if (utente != null && utente.password == password) {
-        // Salva la sessione se le credenziali sono corrette
-        await _sessionManager.saveSession(utente.username);
+        // Salva l'intero oggetto utente nella sessione
+        await _sessionManager.saveUser(utente);
         _loading = false;
         notifyListeners();
         return utente.username;
@@ -51,7 +51,7 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
 
-  // Gestisce il login tramite Google (simulato per parità con la versione Flutter attuale)
+  // Gestisce il login tramite Google
   Future<String?> loginWithGoogle() async {
     _loading = true;
     _error = null;
@@ -88,7 +88,7 @@ class LoginViewModel extends ChangeNotifier {
         await _utenteService.inserisciUtente(utente);
       }
 
-      await _sessionManager.saveSession(utente.username);
+      await _sessionManager.saveUser(utente);
       _loading = false;
       notifyListeners();
       return utente.username;

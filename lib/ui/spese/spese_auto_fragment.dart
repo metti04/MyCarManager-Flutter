@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../models/lavoro.dart';
-import '../../models/obbligo.dart';
-import '../../theme/app_colors.dart';
-import '../scheda_auto/scheda_auto_viewmodel.dart';
+import 'package:my_car_manager/models/lavoro.dart';
+import 'package:my_car_manager/models/obbligo.dart';
+import 'package:my_car_manager/theme/app_colors.dart';
+import 'package:my_car_manager/ui/scheda_auto/scheda_auto_viewmodel.dart';
 
 class SpeseAutoFragment extends StatelessWidget {
   final SchedaAutoViewModel viewModel;

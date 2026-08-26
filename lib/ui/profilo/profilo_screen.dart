@@ -15,7 +15,7 @@ class ProfiloScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => ProfiloViewModel()..caricaDati(username),
+      create: (_) => ProfiloViewModel()..caricaDati(),
       child: Consumer<ProfiloViewModel>(
         builder: (context, viewModel, _) {
           final df = DateFormat('dd/MM/yyyy');
@@ -31,7 +31,7 @@ class ProfiloScreen extends StatelessWidget {
                     height: 180,
                   ),
                   Expanded(
-                    child: viewModel.loading
+                    child: (viewModel.loading && u == null)
                         ? const Center(child: CircularProgressIndicator())
                         : SingleChildScrollView(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -68,10 +68,10 @@ class ProfiloScreen extends StatelessWidget {
                                             onPressed: () async {
                                               await Navigator.of(context).push(
                                                 MaterialPageRoute(
-                                                  builder: (_) => ModificaDatiScreen(username: username),
+                                                  builder: (_) => ModificaDatiScreen(username: u?.username ?? username),
                                                 ),
                                               );
-                                              viewModel.caricaDati(username);
+                                              viewModel.caricaDati();
                                             },
                                             style: FilledButton.styleFrom(
                                               backgroundColor: AppColors.blu,
