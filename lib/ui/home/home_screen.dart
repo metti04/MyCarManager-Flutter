@@ -85,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     final auto = viewModel.autos[index];
                                     return AutoCard(
                                       auto: auto,
-                                      scadenzaImminente: false, // Potrebbe essere calcolato
+                                      scadenzaImminente: viewModel.haScadenze(auto.targa),
                                       onTap: () async {
                                         await Navigator.of(context).push(
                                           MaterialPageRoute(
@@ -118,52 +118,68 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildStatsCard(HomeViewModel viewModel) {
+    Color scadenzeColor = AppColors.verde;
+    if (viewModel.countScadute > 0) {
+      scadenzeColor = AppColors.rosso;
+    } else if (viewModel.countImminenti > 0) {
+      scadenzeColor = AppColors.arancione;
+    }
+
     return Card(
-      elevation: 4,
+      elevation: 6,
+      shadowColor: AppColors.nero.withOpacity(0.2),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
       color: AppColors.bianco,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: 16),
         child: Row(
           children: [
             // Sezione Spese
             Expanded(
               child: InkWell(
+                onTap: () {
+                  // TODO: Navigazione a lista spese globale
+                },
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     SvgPicture.asset(
                       'assets/images/ic_spese.svg',
                       colorFilter: const ColorFilter.mode(AppColors.blu, BlendMode.srcIn),
-                      width: 28,
-                      height: 28,
+                      width: 32,
+                      height: 32,
                     ),
-                    const Text('Spese', style: TextStyle(fontSize: 14, color: AppColors.nero)),
+                    const SizedBox(height: 4),
+                    const Text('Spese', style: TextStyle(fontSize: 14, color: AppColors.grigio, fontWeight: FontWeight.bold)),
                     Text(
-                      '${viewModel.speseDelMese.toStringAsFixed(2)}€',
+                      '${viewModel.speseTotali.toStringAsFixed(2)}€',
                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.blu),
                     ),
                   ],
                 ),
               ),
             ),
-            Container(width: 1, height: 40, color: AppColors.grigino),
+            Container(width: 1.5, height: 50, color: AppColors.grigino),
             // Sezione Scadenze
             Expanded(
               child: InkWell(
+                onTap: () {
+                  // TODO: Navigazione a lista scadenze globale
+                },
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     SvgPicture.asset(
                       'assets/images/ic_sveglia.svg',
-                      colorFilter: const ColorFilter.mode(AppColors.verde, BlendMode.srcIn),
-                      width: 28,
-                      height: 28,
+                      colorFilter: ColorFilter.mode(scadenzeColor, BlendMode.srcIn),
+                      width: 32,
+                      height: 32,
                     ),
-                    const Text('Scadenze', style: TextStyle(fontSize: 14, color: AppColors.nero)),
+                    const SizedBox(height: 4),
+                    const Text('Scadenze', style: TextStyle(fontSize: 14, color: AppColors.grigio, fontWeight: FontWeight.bold)),
                     Text(
-                      '${viewModel.scadenzeImminenti}',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.verde),
+                      '${viewModel.scadenzeTotali}',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: scadenzeColor),
                     ),
                   ],
                 ),

@@ -86,8 +86,8 @@ class SchedaAutoScreen extends StatelessWidget {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
                           color: AppColors.bianco,
                           child: Container(
-                            width: 60,
-                            height: 60,
+                            width: 80,
+                            height: 80,
                             padding: const EdgeInsets.all(20),
                             child: SvgPicture.asset(
                               'assets/images/ic_auto.svg',
@@ -257,7 +257,11 @@ class SchedaAutoScreen extends StatelessWidget {
     switch (viewModel.currentTab) {
       case 0: return DettagliAutoFragment(auto: viewModel.auto!, viewModel: viewModel);
       case 1: return SpeseAutoFragment(viewModel: viewModel);
-      case 2: return ScadenzeAutoFragment(viewModel: viewModel);
+      case 2: return ScadenzeAutoFragment(
+        viewModel: viewModel,
+        onLavoroClick: (l) => _modificaLavoro(context, viewModel, l),
+        onObbligoClick: (o) => _modificaObbligo(context, viewModel, o),
+      );
       case 3: return LavoriAutoFragment(viewModel: viewModel, onEdit: (l) => _modificaLavoro(context, viewModel, l));
       case 4: return ObblighiAutoFragment(viewModel: viewModel, onEdit: (o) => _modificaObbligo(context, viewModel, o));
       default: return const SizedBox();

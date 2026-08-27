@@ -19,11 +19,20 @@ class HomeViewModel extends ChangeNotifier {
   List<Auto> _autos = [];
   List<Auto> get autos => _autos;
 
-  double _speseDelMese = 0.0;
-  double get speseDelMese => _speseDelMese;
+  // Mappa per sapere se un'auto ha scadenze imminenti o scadute
+  final Map<String, bool> _autoConScadenze = {};
+  bool haScadenze(String targa) => _autoConScadenze[targa] ?? false;
 
-  int _scadenzeImminenti = 0;
-  int get scadenzeImminenti => _scadenzeImminenti;
+  double _speseTotali = 0.0;
+  double get speseTotali => _speseTotali;
+
+  int _countScadute = 0;
+  int get countScadute => _countScadute;
+
+  int _countImminenti = 0;
+  int get countImminenti => _countImminenti;
+
+  int get scadenzeTotali => _countScadute + _countImminenti;
 
   bool _loading = false;
   bool get loading => _loading;
@@ -38,42 +47,61 @@ class HomeViewModel extends ChangeNotifier {
       final targhe = await _possedereService.getTargheByUser(username);
       _autos = await _autoService.getAutoByTarghe(targhe);
       
-      double spese = 0.0;
-      int scadenze = 0;
+      double speseTotali = 0.0;
+      int scadute = 0;
+      int imminenti = 0;
       final now = DateTime.now();
-      final currentMonth = now.month;
-      final currentYear = now.year;
 
-      // 2. Analizza ogni auto per calcolare spese e scadenze
+      // 2. Analizza ogni auto per calcolare spese e scadenze complessive
       for (var auto in _autos) {
         final lavori = await _lavoroService.getLavoriByTarga(auto.targa);
         final obblighi = await _obbligoService.getObblighiByTarga(auto.targa);
 
-        // Calcolo spese del mese corrente (lavori già eseguiti)
+        bool carHasDeadlines = false;
+
+        // Calcolo spese totali (tutti i lavori già eseguiti)
         for (var l in lavori) {
-          if (l.stato == StatoLavoro.eseguito && l.data.month == currentMonth && l.data.year == currentYear) {
-            spese += (l.costo ?? 0.0);
+          if (l.stato == StatoLavoro.eseguito) {
+            speseTotali += (l.costo ?? 0.0);
           }
-          // Conteggio scadenze previste nei prossimi 31 giorni
-          if (l.stato == StatoLavoro.daEseguire && l.data.difference(now).inDays <= 31 && l.data.isAfter(now)) {
-            scadenze++;
+          // Conteggio scadenze (lavori da eseguire)
+          if (l.stato == StatoLavoro.daEseguire) {
+            final giorni = l.data.difference(now).inDays;
+            final kmRimanenti = (l.chilometraggio ?? 0) - auto.chilometraggio;
+
+            if (giorni < 0 || kmRimanenti < 0) {
+              scadute++;
+              carHasDeadlines = true;
+            } else if (giorni <= 31 || kmRimanenti <= 1000) {
+              imminenti++;
+              carHasDeadlines = true;
+            }
           }
         }
 
-        // Calcolo spese del mese per obblighi fiscali (bolli, ecc.)
+        // Calcolo spese totali per obblighi fiscali pagati
         for (var o in obblighi) {
-          if (o.stato == StatoObbligo.pagato && o.dataPagamento != null && o.dataPagamento!.month == currentMonth && o.dataPagamento!.year == currentYear) {
-            spese += (o.costo ?? 0.0);
+          if (o.stato == StatoObbligo.pagato) {
+            speseTotali += (o.costo ?? 0.0);
           }
-          // Conteggio obblighi in scadenza
-          if (o.stato == StatoObbligo.daPagare && o.dataScadenza != null && o.dataScadenza!.difference(now).inDays <= 31 && o.dataScadenza!.isAfter(now)) {
-            scadenze++;
+          // Conteggio obblighi in scadenza (da pagare)
+          if (o.stato == StatoObbligo.daPagare && o.dataScadenza != null) {
+            final giorni = o.dataScadenza!.difference(now).inDays;
+            if (giorni < 0) {
+              scadute++;
+              carHasDeadlines = true;
+            } else if (giorni <= 31) {
+              imminenti++;
+              carHasDeadlines = true;
+            }
           }
         }
+        _autoConScadenze[auto.targa] = carHasDeadlines;
       }
       
-      _speseDelMese = spese;
-      _scadenzeImminenti = scadenze;
+      _speseTotali = speseTotali;
+      _countScadute = scadute;
+      _countImminenti = imminenti;
 
     } catch (e) {
       debugPrint('Errore caricamento dati home: $e');

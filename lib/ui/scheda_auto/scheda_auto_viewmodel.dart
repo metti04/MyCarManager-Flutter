@@ -123,10 +123,15 @@ class SchedaAutoViewModel extends ChangeNotifier {
     final now = DateTime.now();
     int count = 0;
     for (var l in _lavori.where((l) => l.stato == StatoLavoro.daEseguire)) {
-      if (l.data.isBefore(now)) count++;
+      final giorni = l.data.difference(now).inDays;
+      final kmRimanenti = (l.chilometraggio ?? 0) - (_auto?.chilometraggio ?? 0);
+      if (giorni < 0 || kmRimanenti < 0) count++;
     }
     for (var o in _obblighi.where((o) => o.stato == StatoObbligo.daPagare)) {
-      if (o.dataScadenza != null && o.dataScadenza!.isBefore(now)) count++;
+      if (o.dataScadenza != null) {
+        final giorni = o.dataScadenza!.difference(now).inDays;
+        if (giorni < 0) count++;
+      }
     }
     return count;
   }
@@ -135,10 +140,37 @@ class SchedaAutoViewModel extends ChangeNotifier {
     final now = DateTime.now();
     int count = 0;
     for (var l in _lavori.where((l) => l.stato == StatoLavoro.daEseguire)) {
-      if (!l.data.isBefore(now) && l.data.difference(now).inDays <= 31) count++;
+      final giorni = l.data.difference(now).inDays;
+      final kmRimanenti = (l.chilometraggio ?? 0) - (_auto?.chilometraggio ?? 0);
+      final isScaduta = giorni < 0 || kmRimanenti < 0;
+      if (!isScaduta && (giorni <= 31 || (kmRimanenti >= 0 && kmRimanenti <= 1000))) {
+        count++;
+      }
     }
     for (var o in _obblighi.where((o) => o.stato == StatoObbligo.daPagare)) {
-      if (o.dataScadenza != null && !o.dataScadenza!.isBefore(now) && o.dataScadenza!.difference(now).inDays <= 31) count++;
+      if (o.dataScadenza != null) {
+        final giorni = o.dataScadenza!.difference(now).inDays;
+        if (giorni >= 0 && giorni <= 31) count++;
+      }
+    }
+    return count;
+  }
+
+  int get countRegolari {
+    final now = DateTime.now();
+    int count = 0;
+    for (var l in _lavori.where((l) => l.stato == StatoLavoro.daEseguire)) {
+      final giorni = l.data.difference(now).inDays;
+      final kmRimanenti = (l.chilometraggio ?? 0) - (_auto?.chilometraggio ?? 0);
+      final isScaduta = giorni < 0 || kmRimanenti < 0;
+      final isImminente = !isScaduta && (giorni <= 31 || (kmRimanenti >= 0 && kmRimanenti <= 1000));
+      if (!isScaduta && !isImminente) count++;
+    }
+    for (var o in _obblighi.where((o) => o.stato == StatoObbligo.daPagare)) {
+      if (o.dataScadenza != null) {
+        final giorni = o.dataScadenza!.difference(now).inDays;
+        if (giorni > 31) count++;
+      }
     }
     return count;
   }
@@ -147,6 +179,10 @@ class SchedaAutoViewModel extends ChangeNotifier {
   List<dynamic> get itemsScadenze {
     final l = _lavori.where((l) => l.stato == StatoLavoro.daEseguire).toList();
     final o = _obblighi.where((o) => o.stato == StatoObbligo.daPagare).toList();
-    return [...l, ...o];
+    return [...l, ...o]..sort((a, b) {
+      final da = a is Lavoro ? a.data : (a as Obbligo).dataScadenza ?? DateTime(2100);
+      final db = b is Lavoro ? b.data : (b as Obbligo).dataScadenza ?? DateTime(2100);
+      return da.compareTo(db);
+    });
   }
 }
