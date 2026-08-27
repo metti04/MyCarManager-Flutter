@@ -86,8 +86,8 @@ class SchedaAutoScreen extends StatelessWidget {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
                           color: AppColors.bianco,
                           child: Container(
-                            width: 120,
-                            height: 120,
+                            width: 60,
+                            height: 60,
                             padding: const EdgeInsets.all(20),
                             child: SvgPicture.asset(
                               'assets/images/ic_auto.svg',
