@@ -10,7 +10,7 @@ class LavoroService {
         .from('lavori')
         .select()
         .eq('targaAuto', targa.toUpperCase().trim())
-        .order('targaAuto', ascending: false);
+        .order('data', ascending: false);
     return (data as List).map((e) => Lavoro.fromJson(e)).toList();
   }
 

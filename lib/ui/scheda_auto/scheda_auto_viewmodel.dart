@@ -19,9 +19,11 @@ class SchedaAutoViewModel extends ChangeNotifier {
 
   List<Lavoro> _lavori = [];
   List<Lavoro> get lavori => _lavori;
+  List<Lavoro> get lavoriEseguiti => _lavori.where((l) => l.stato == StatoLavoro.eseguito).toList();
 
   List<Obbligo> _obblighi = [];
   List<Obbligo> get obblighi => _obblighi;
+  List<Obbligo> get obblighiPagati => _obblighi.where((o) => o.stato == StatoObbligo.pagato).toList();
 
   // Stato di caricamento
   bool _loading = false;

@@ -10,7 +10,7 @@ class ObbligoService {
         .from('obblighi')
         .select()
         .eq('targaAuto', targa.toUpperCase().trim())
-        .order('targaAuto', ascending: false);
+        .order('dataScadenza', ascending: false);
     return (data as List).map((e) => Obbligo.fromJson(e)).toList();
   }
 

@@ -13,8 +13,8 @@ class ObblighiAutoFragment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final obblighi = viewModel.obblighi;
-    if (obblighi.isEmpty) return const Center(child: Text('Nessun obbligo registrato.'));
+    final obblighi = viewModel.obblighiPagati;
+    if (obblighi.isEmpty) return const Center(child: Text('Nessun obbligo pagato registrato.'));
 
     return ListView.builder(
       padding: const EdgeInsets.only(bottom: 80),

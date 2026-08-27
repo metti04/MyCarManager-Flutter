@@ -116,12 +116,12 @@ class ScadenzeAutoFragment extends StatelessWidget {
                                 children: [
                                   Text(
                                     nome, 
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.nero)
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.nero)
                                   ),
-                                  Text(
-                                    viewModel.auto?.nomeCompleto ?? targa, 
-                                    style: const TextStyle(color: AppColors.grigio, fontSize: 14)
-                                  ),
+                                  // Text(
+                                  //   viewModel.auto?.nomeCompleto ?? targa,
+                                  //   style: const TextStyle(color: AppColors.grigio, fontSize: 14)
+                                  // ),
                                 ],
                               ),
                             ),
@@ -136,7 +136,11 @@ class ScadenzeAutoFragment extends StatelessWidget {
                                     style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 14),
                                   ),
                                 Text(
-                                  isScaduta ? "Scaduta" : (giorni <= 0 ? "Oggi" : "Tra"),
+                                  isScaduta 
+                                    ? "Scaduta" 
+                                    : (giorni <= 0 
+                                        ? "Oggi" 
+                                        : (kmRimanenti != null ? "Tra $kmRimanenti Km" : "Tra $giorni giorni")),
                                   style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 12),
                                 ),
                               ],

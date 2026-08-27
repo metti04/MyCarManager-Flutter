@@ -137,9 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // Sezione Spese
             Expanded(
               child: InkWell(
-                onTap: () {
-                  // TODO: Navigazione a lista spese globale
-                },
+
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -163,9 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // Sezione Scadenze
             Expanded(
               child: InkWell(
-                onTap: () {
-                  // TODO: Navigazione a lista scadenze globale
-                },
+
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -179,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Text('Scadenze', style: TextStyle(fontSize: 14, color: AppColors.grigio, fontWeight: FontWeight.bold)),
                     Text(
                       '${viewModel.scadenzeTotali}',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: scadenzeColor),
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.nero),
                     ),
                   ],
                 ),

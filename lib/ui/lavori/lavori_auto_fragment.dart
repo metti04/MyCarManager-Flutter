@@ -13,8 +13,8 @@ class LavoriAutoFragment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lavori = viewModel.lavori;
-    if (lavori.isEmpty) return const Center(child: Text('Nessun lavoro registrato.'));
+    final lavori = viewModel.lavoriEseguiti;
+    if (lavori.isEmpty) return const Center(child: Text('Nessun lavoro eseguito registrato.'));
     
     return ListView.builder(
       padding: const EdgeInsets.only(bottom: 80),
