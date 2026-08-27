@@ -128,6 +128,7 @@ class ScadenzeAutoFragment extends StatelessWidget {
                             
                             // Data e Stato temporale
                             Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 if (data != null)
@@ -135,14 +136,15 @@ class ScadenzeAutoFragment extends StatelessWidget {
                                     df.format(data),
                                     style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 14),
                                   ),
-                                Text(
-                                  isScaduta 
-                                    ? "Scaduta" 
-                                    : (giorni <= 0 
-                                        ? "Oggi" 
-                                        : (kmRimanenti != null ? "Tra $kmRimanenti Km" : "Tra $giorni giorni")),
-                                  style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 12),
-                                ),
+                                if (isScaduta || giorni <= 0 || kmRimanenti != null)
+                                  Text(
+                                    isScaduta 
+                                      ? "Scaduta" 
+                                      : (giorni <= 0 
+                                          ? "Oggi" 
+                                          : "Tra $kmRimanenti Km"),
+                                    style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 12),
+                                  ),
                               ],
                             ),
                             const SizedBox(width: 10),
