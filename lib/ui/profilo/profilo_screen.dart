@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../theme/app_colors.dart';
@@ -37,6 +38,36 @@ class ProfiloScreen extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Column(
                               children: [
+                                const SizedBox(height: 15),
+                                // BOTTONE LOGOUT
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: OutlinedButton.icon(
+                                    onPressed: () async {
+                                      await viewModel.logout();
+                                      if (context.mounted) {
+                                        Navigator.of(context).pushAndRemoveUntil(
+                                          MaterialPageRoute(builder: (_) => const LoginScreen()),
+                                          (route) => false,
+                                        );
+                                      }
+                                    },
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: AppColors.rosso,
+                                      backgroundColor: AppColors.bianco,
+                                      side: const BorderSide(color: AppColors.rosso, width: 2),
+                                      minimumSize: const Size(150, 55),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                                    ),
+                                    label: SvgPicture.asset(
+                                      'assets/images/ic_logout.svg',
+                                      colorFilter: const ColorFilter.mode(AppColors.rosso, BlendMode.srcIn),
+                                      width: 24,
+                                      height: 24,
+                                    ),
+                                    icon: const Text('Esci', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                                  ),
+                                ),
                                 // CARD DATI UTENTE
                                 Card(
                                   elevation: 0,
@@ -63,51 +94,45 @@ class ProfiloScreen extends StatelessWidget {
                                         _ProfiloItem(label: 'Email', value: u?.email ?? '-'),
                                         _ProfiloItem(label: 'Data di nascita', value: u != null ? df.format(u.dataDiNascita) : '-'),
                                         const SizedBox(height: 20),
-                                        Center(
-                                          child: FilledButton(
-                                            onPressed: () async {
-                                              await Navigator.of(context).push(
-                                                MaterialPageRoute(
-                                                  builder: (_) => ModificaDatiScreen(username: u?.username ?? username),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Expanded(
+                                              child: FilledButton(
+                                                onPressed: () async {
+                                                  await Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                      builder: (_) => ModificaDatiScreen(username: u?.username ?? username),
+                                                    ),
+                                                  );
+                                                  viewModel.caricaDati();
+                                                },
+                                                style: FilledButton.styleFrom(
+                                                  backgroundColor: AppColors.blu,
+                                                  minimumSize: const Size(0, 60),
+                                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
                                                 ),
-                                              );
-                                              viewModel.caricaDati();
-                                            },
-                                            style: FilledButton.styleFrom(
-                                              backgroundColor: AppColors.blu,
-                                              minimumSize: const Size(200, 60),
-                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                                                child: const Text('Modifica', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                                              ),
                                             ),
-                                            child: const Text('Modifica', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                                          ),
+                                            const SizedBox(width: 10),
+                                            IconButton(
+                                              icon: SvgPicture.asset(
+                                                'assets/images/ic_elimina.svg',
+                                                colorFilter: const ColorFilter.mode(AppColors.rosso, BlendMode.srcIn),
+                                                width: 35,
+                                                height: 35,
+                                              ),
+                                              onPressed: () => _mostraConfermaEliminazione(context, viewModel),
+                                              style: IconButton.styleFrom(
+                                                backgroundColor: AppColors.bianco,
+                                                padding: const EdgeInsets.all(12),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-                                // BOTTONE LOGOUT
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: OutlinedButton.icon(
-                                    onPressed: () async {
-                                      await viewModel.logout();
-                                      if (context.mounted) {
-                                        Navigator.of(context).pushAndRemoveUntil(
-                                          MaterialPageRoute(builder: (_) => const LoginScreen()),
-                                          (route) => false,
-                                        );
-                                      }
-                                    },
-                                    style: OutlinedButton.styleFrom(
-                                      foregroundColor: AppColors.rosso,
-                                      backgroundColor: AppColors.bianco,
-                                      side: const BorderSide(color: AppColors.rosso, width: 2),
-                                      minimumSize: const Size(150, 55),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                                    ),
-                                    label: const Icon(Icons.logout, size: 28),
-                                    icon: const Text('Esci', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                                   ),
                                 ),
                                 const SizedBox(height: 20),
@@ -120,6 +145,35 @@ class ProfiloScreen extends StatelessWidget {
             ),
           );
         },
+      ),
+    );
+  }
+
+  void _mostraConfermaEliminazione(BuildContext context, ProfiloViewModel viewModel) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Elimina Account'),
+        content: const Text('Sei sicuro di voler eliminare definitivamente il tuo account? Questa operazione non è reversibile.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annulla'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              final success = await viewModel.eliminaAccount();
+              if (success && context.mounted) {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  (route) => false,
+                );
+              }
+            },
+            child: const Text('Elimina', style: TextStyle(color: AppColors.rosso)),
+          ),
+        ],
       ),
     );
   }

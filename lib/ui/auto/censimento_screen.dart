@@ -1,14 +1,8 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:pdfx/pdfx.dart';
 import '../../models/auto.dart';
-import '../../models/enums.dart';
-import '../../models/ai_data_models.dart';
-import '../../services/api_services/auto_api_service.dart';
+import '../../models/enum.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/blue_header_card.dart';
 import 'censimento_viewmodel.dart';
@@ -21,9 +15,6 @@ class CensimentoScreen extends StatefulWidget {
 }
 
 class _CensimentoScreenState extends State<CensimentoScreen> {
-  final _autoApiService = AutoApiService();
-  final _picker = ImagePicker();
-
   final _targaController = TextEditingController();
   final _modelloController = TextEditingController();
   final _marcaController = TextEditingController();
@@ -34,7 +25,7 @@ class _CensimentoScreenState extends State<CensimentoScreen> {
   final _kmController = TextEditingController();
 
   DateTime? _dataImmatricolazione;
-  Alimentazione _alimentazione = Alimentazione.benz;
+  Alimentazione? _alimentazione;
 
   @override
   Widget build(BuildContext context) {
@@ -43,54 +34,14 @@ class _CensimentoScreenState extends State<CensimentoScreen> {
       create: (_) => CensimentoViewModel(),
       child: Consumer<CensimentoViewModel>(
         builder: (context, viewModel, _) {
-          // Ascolta i dati estratti dall'IA
-          if (viewModel.datiEstratti != null) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-               _popolaCampiDaAI(viewModel.datiEstratti!);
-               viewModel.resetDatiEstratti();
-               ScaffoldMessenger.of(context).showSnackBar(
-                 const SnackBar(content: Text('Dati estratti con successo!')),
-               );
-            });
-          }
-
           return Scaffold(
             backgroundColor: AppColors.bluChiaro2,
             body: SafeArea(
               child: Column(
                 children: [
-                  BlueHeaderCard(
+                  const BlueHeaderCard(
                     title: 'Censisci nuova auto',
                     height: 220,
-                    actionBox: InkWell(
-                      onTap: () => _mostraOpzioniScansione(viewModel),
-                      child: Container(
-                        padding: const EdgeInsets.all(15),
-                        decoration: BoxDecoration(
-                          color: AppColors.bianco.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: AppColors.bianco, width: 1),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            if (viewModel.loading)
-                               const SizedBox(
-                                 width: 20,
-                                 height: 20,
-                                 child: CircularProgressIndicator(color: AppColors.bianco, strokeWidth: 2),
-                               )
-                            else
-                               const Icon(Icons.document_scanner, color: AppColors.bianco),
-                            const SizedBox(width: 10),
-                            const Text(
-                              'Scansiona Libretto',
-                              style: TextStyle(color: AppColors.bianco, fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
                   ),
                   Expanded(
                     child: SingleChildScrollView(
@@ -123,7 +74,7 @@ class _CensimentoScreenState extends State<CensimentoScreen> {
                           
                           _buildDropdownField(),
                           
-                          _buildWhiteField(_vinController, 'Vin (17 caratteri)'),
+                          _buildWhiteField(_vinController, 'Vin'),
                           
                           const SizedBox(height: 24),
                           Row(
@@ -152,7 +103,7 @@ class _CensimentoScreenState extends State<CensimentoScreen> {
                                             vin: _vinController.text,
                                             dataImmatricolazione: _dataImmatricolazione ?? DateTime.now(),
                                             cilindrata: int.tryParse(_cilindrataController.text) ?? 0,
-                                            alimentazione: _alimentazione,
+                                            alimentazione: _alimentazione ?? Alimentazione.benz,
                                             pathLibretto: '',
                                             identificatoreMotore: _identificatoreMotoreController.text,
                                             potenza: int.tryParse(_potenzaController.text) ?? 0,
@@ -189,95 +140,6 @@ class _CensimentoScreenState extends State<CensimentoScreen> {
     );
   }
 
-  void _mostraOpzioniScansione(CensimentoViewModel viewModel) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (context) => SafeArea(
-        child: Wrap(
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt, color: AppColors.blu),
-              title: const Text('Fotocamera'),
-              onTap: () async {
-                Navigator.pop(context);
-                final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
-                if (photo != null) viewModel.estraiDatiDaLibretto(await photo.readAsBytes());
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library, color: AppColors.blu),
-              title: const Text('Galleria'),
-              onTap: () async {
-                Navigator.pop(context);
-                final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-                if (image != null) viewModel.estraiDatiDaLibretto(await image.readAsBytes());
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.picture_as_pdf, color: AppColors.blu),
-              title: const Text('Documenti (PDF)'),
-              onTap: () async {
-                Navigator.pop(context);
-                final FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
-                if (result != null && result.files.single.path != null) {
-                  final bytes = await _renderPdfPage(result.files.single.path!);
-                  if (bytes != null) viewModel.estraiDatiDaLibretto(bytes);
-                }
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<Uint8List?> _renderPdfPage(String path) async {
-    try {
-      final document = await PdfDocument.openFile(path);
-      final page = await document.getPage(1);
-      final pageImage = await page.render(
-        width: page.width * 2,
-        height: page.height * 2,
-        format: PdfPageImageFormat.jpeg,
-      );
-      await page.close();
-      await document.close();
-      return pageImage?.bytes;
-    } catch (e) {
-      debugPrint('Errore rendering PDF: $e');
-      return null;
-    }
-  }
-
-  void _popolaCampiDaAI(SmartResult result) {
-    setState(() {
-      for (var item in result.extractedData) {
-        switch (item.type) {
-          case DataType.plate: _targaController.text = item.value; break;
-          case DataType.brand: _marcaController.text = item.value; break;
-          case DataType.model: _modelloController.text = item.value; break;
-          case DataType.displacement: _cilindrataController.text = item.value; break;
-          case DataType.power: _potenzaController.text = item.value; break;
-          case DataType.engine: _identificatoreMotoreController.text = item.value; break;
-          case DataType.vin: _vinController.text = item.value; break;
-          case DataType.date:
-            try {
-               _dataImmatricolazione = DateFormat('dd/MM/yyyy').parse(item.value);
-            } catch (_) {}
-            break;
-          case DataType.fuel: 
-            _alimentazione = Alimentazione.values.firstWhere(
-              (a) => a.dbValue.toLowerCase() == item.value.toLowerCase(),
-              orElse: () => _alimentazione,
-            );
-            break;
-          default: break;
-        }
-      }
-    });
-  }
-
   Widget _buildWhiteField(TextEditingController controller, String label, {TextInputType keyboardType = TextInputType.text}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -308,12 +170,13 @@ class _CensimentoScreenState extends State<CensimentoScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: InputDecorator(
+        isEmpty: value.isEmpty,
         decoration: InputDecoration(
           labelText: label,
           labelStyle: const TextStyle(color: AppColors.blu),
           filled: true,
           fillColor: AppColors.bianco,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(25),
             borderSide: const BorderSide(color: AppColors.blu),
@@ -356,7 +219,7 @@ class _CensimentoScreenState extends State<CensimentoScreen> {
                   child: Text(a.dbValue),
                 ))
             .toList(),
-        onChanged: (value) => setState(() => _alimentazione = value ?? _alimentazione),
+        onChanged: (value) => setState(() => _alimentazione = value),
       ),
     );
   }

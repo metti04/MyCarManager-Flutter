@@ -22,6 +22,7 @@ class _ModificaDatiScreenState extends State<ModificaDatiScreen> {
   final _passwordController = TextEditingController();
   final _usernameController = TextEditingController();
   DateTime? _dataNascita;
+  bool _obscurePassword = true;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +32,6 @@ class _ModificaDatiScreenState extends State<ModificaDatiScreen> {
       create: (_) => ModificaDatiViewModel()..caricaDati(widget.username),
       child: Consumer<ModificaDatiViewModel>(
         builder: (context, viewModel, _) {
-          // Popolamento iniziale dei campi
           if (viewModel.utente != null && _nomeController.text.isEmpty) {
             final u = viewModel.utente!;
             _nomeController.text = u.nome;
@@ -50,26 +50,43 @@ class _ModificaDatiScreenState extends State<ModificaDatiScreen> {
                   BlueHeaderCard(
                     title: viewModel.utente != null 
                         ? '${viewModel.utente!.nome} ${viewModel.utente!.cognome}'
-                        : 'Modifica Dati',
-                    height: 180,
+                        : '',
+                    height: 220,
                   ),
+                  
                   Expanded(
-                    child: viewModel.loading
-                        ? const Center(child: CircularProgressIndicator())
-                        : SingleChildScrollView(
-                            padding: const EdgeInsets.all(24),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: AppColors.bluChiaro2,
-                                borderRadius: BorderRadius.circular(40),
-                              ),
-                              padding: const EdgeInsets.all(20),
+                    child: Container(
+                      // Rimosso il margine negativo che causava l'errore
+                      margin: const EdgeInsets.only(top: 30), 
+                      decoration: const BoxDecoration(
+                        color: AppColors.bluChiaro,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(40),
+                          topRight: Radius.circular(40),
+                        ),
+                      ),
+                      child: viewModel.loading
+                          ? const Center(child: CircularProgressIndicator())
+                          : SingleChildScrollView(
+                              padding: const EdgeInsets.all(24),
                               child: Column(
                                 children: [
-                                  _buildWhiteField(_nomeController, 'Nome'),
-                                  _buildWhiteField(_cognomeController, 'Cognome'),
-                                  _buildWhiteField(_emailController, 'Email'),
-                                  _buildWhiteField(_passwordController, 'Password', obscure: true),
+                                  _buildField(_nomeController, 'Nome'),
+                                  _buildField(_cognomeController, 'Cognome'),
+                                  _buildField(_emailController, 'Email'),
+                                  _buildField(
+                                    _passwordController, 
+                                    'Password', 
+                                    obscure: _obscurePassword,
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                                        color: AppColors.blu,
+                                      ),
+                                      onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                                    ),
+                                  ),
+                                  
                                   InkWell(
                                     onTap: () async {
                                       final picked = await showDatePicker(
@@ -80,11 +97,23 @@ class _ModificaDatiScreenState extends State<ModificaDatiScreen> {
                                       );
                                       if (picked != null) setState(() => _dataNascita = picked);
                                     },
-                                    child: _buildWhiteFieldStatic(
+                                    child: _buildFieldStatic(
                                         _dataNascita == null ? '' : df.format(_dataNascita!), 'Data di nascita'),
                                   ),
-                                  _buildWhiteField(_usernameController, 'Username'),
-                                  const SizedBox(height: 30),
+                                  
+                                  _buildField(_usernameController, 'Username'),
+                                  
+                                  if (viewModel.error != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 10),
+                                      child: Text(
+                                        viewModel.error!,
+                                        style: const TextStyle(color: AppColors.rosso, fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    
+                                  const SizedBox(height: 25),
+                                  
                                   Row(
                                     children: [
                                       Expanded(
@@ -92,38 +121,42 @@ class _ModificaDatiScreenState extends State<ModificaDatiScreen> {
                                           onPressed: () => Navigator.of(context).pop(),
                                           style: FilledButton.styleFrom(
                                             backgroundColor: AppColors.bluPastello,
-                                            minimumSize: const Size.fromHeight(60),
-                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                            minimumSize: const Size.fromHeight(55),
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
                                           ),
-                                          child: const Text('Annulla'),
+                                          child: const Text('Annulla', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                                         ),
                                       ),
-                                      const SizedBox(width: 15),
+                                      const SizedBox(width: 8),
                                       Expanded(
                                         child: FilledButton(
-                                          onPressed: () async {
-                                            final updatedUtente = Utente(
-                                              username: _usernameController.text,
-                                              password: _passwordController.text,
-                                              email: _emailController.text,
-                                              nome: _nomeController.text,
-                                              cognome: _cognomeController.text,
-                                              dataDiNascita: _dataNascita ?? DateTime.now(),
-                                            );
-                                            final success = await viewModel.salva(updatedUtente);
-                                            if (success && context.mounted) {
-                                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Dati aggiornati!')));
-                                              Navigator.of(context).pop();
-                                            }
-                                          },
+                                          onPressed: viewModel.loading 
+                                              ? null 
+                                              : () async {
+                                                  final updatedUtente = Utente(
+                                                    username: _usernameController.text,
+                                                    password: _passwordController.text,
+                                                    email: _emailController.text,
+                                                    nome: _nomeController.text,
+                                                    cognome: _cognomeController.text,
+                                                    dataDiNascita: _dataNascita ?? DateTime.now(),
+                                                  );
+                                                  final success = await viewModel.salva(updatedUtente);
+                                                  if (success && context.mounted) {
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      const SnackBar(content: Text('Dati aggiornati!'))
+                                                    );
+                                                    Navigator.of(context).pop();
+                                                  }
+                                                },
                                           style: FilledButton.styleFrom(
-                                            backgroundColor: AppColors.bluScuro,
-                                            minimumSize: const Size.fromHeight(60),
-                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                            backgroundColor: AppColors.blu,
+                                            minimumSize: const Size.fromHeight(55),
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
                                           ),
                                           child: viewModel.loading
                                               ? const CircularProgressIndicator(color: AppColors.bianco)
-                                              : const Text('Salva'),
+                                              : const Text('Salva', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                                         ),
                                       ),
                                     ],
@@ -131,7 +164,7 @@ class _ModificaDatiScreenState extends State<ModificaDatiScreen> {
                                 ],
                               ),
                             ),
-                          ),
+                    ),
                   ),
                 ],
               ),
@@ -142,9 +175,9 @@ class _ModificaDatiScreenState extends State<ModificaDatiScreen> {
     );
   }
 
-  Widget _buildWhiteField(TextEditingController controller, String label, {bool obscure = false}) {
+  Widget _buildField(TextEditingController controller, String label, {bool obscure = false, Widget? suffixIcon}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 15),
       child: TextField(
         controller: controller,
         obscureText: obscure,
@@ -152,40 +185,51 @@ class _ModificaDatiScreenState extends State<ModificaDatiScreen> {
         decoration: InputDecoration(
           labelText: label,
           labelStyle: const TextStyle(color: AppColors.blu),
+          hintStyle: const TextStyle(color: AppColors.blu),
+          suffixIcon: suffixIcon,
           filled: true,
-          fillColor: AppColors.bianco,
+          fillColor: Colors.transparent,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: const BorderSide(color: AppColors.nero),
+            borderRadius: BorderRadius.circular(25),
+            borderSide: const BorderSide(color: AppColors.blu),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: const BorderSide(color: AppColors.nero),
+            borderRadius: BorderRadius.circular(25),
+            borderSide: const BorderSide(color: AppColors.blu),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25),
+            borderSide: const BorderSide(color: AppColors.blu, width: 2),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildWhiteFieldStatic(String value, String label) {
+  Widget _buildFieldStatic(String value, String label) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 15),
       child: InputDecorator(
         decoration: InputDecoration(
           labelText: label,
           labelStyle: const TextStyle(color: AppColors.blu),
           filled: true,
-          fillColor: AppColors.bianco,
+          fillColor: Colors.transparent,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: const BorderSide(color: AppColors.nero),
+            borderRadius: BorderRadius.circular(25),
+            borderSide: const BorderSide(color: AppColors.blu),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: const BorderSide(color: AppColors.nero),
+            borderRadius: BorderRadius.circular(25),
+            borderSide: const BorderSide(color: AppColors.blu),
           ),
         ),
-        child: Text(value, style: const TextStyle(fontSize: 16, color: AppColors.blu, fontWeight: FontWeight.bold)),
+        child: Text(
+          value,
+          style: const TextStyle(fontSize: 16, color: AppColors.blu, fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }

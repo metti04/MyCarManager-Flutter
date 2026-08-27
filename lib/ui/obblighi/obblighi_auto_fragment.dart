@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../models/obbligo.dart';
-import '../../models/enums.dart';
+import '../../models/enum.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/expandable_action_card.dart';
 import '../scheda_auto/scheda_auto_viewmodel.dart';
@@ -23,7 +23,7 @@ class ObblighiAutoFragment extends StatelessWidget {
         final o = obblighi[index];
         final df = DateFormat('dd/MM/yyyy');
         return ExpandableActionCard(
-          icona: Icons.assignment,
+          iconaAsset: 'assets/images/ic_obbligo.svg',
           titolo: o.nome ?? 'Obbligo',
           valore: '${o.costo?.toStringAsFixed(2)}€',
           righeChiaveValore: [

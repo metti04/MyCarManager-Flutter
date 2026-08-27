@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../models/utente.dart';
 import '../theme/app_colors.dart';
 
@@ -18,7 +19,16 @@ class UtenteListTile extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const CircleAvatar(radius: 20, backgroundColor: AppColors.bluChiaro, child: Icon(Icons.person, color: AppColors.blu)),
+            CircleAvatar(
+              radius: 20,
+              backgroundColor: AppColors.bluChiaro,
+              child: SvgPicture.asset(
+                'assets/images/ic_account.svg',
+                width: 24,
+                height: 24,
+                colorFilter: const ColorFilter.mode(AppColors.blu, BlendMode.srcIn),
+              ),
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(

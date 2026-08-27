@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../../theme/app_colors.dart';
 import 'login_viewmodel.dart';
@@ -131,7 +132,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                 side: const BorderSide(color: AppColors.blu, width: 2),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
                               ),
-                              icon: const Icon(Icons.login),
+                              icon: SvgPicture.asset(
+                                'assets/images/ic_google.svg',
+                                width: 24,
+                                height: 24,
+                              ),
                               label: const Text('Google Sign In', style: TextStyle(fontSize: 18)),
                             ),
                             const SizedBox(height: 12),

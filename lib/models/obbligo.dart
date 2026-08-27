@@ -1,4 +1,4 @@
-import 'enums.dart';
+import 'enum.dart';
 
 class Obbligo {
   final int? id;

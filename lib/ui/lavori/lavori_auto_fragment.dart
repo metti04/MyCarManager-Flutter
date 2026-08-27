@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../models/lavoro.dart';
-import '../../models/enums.dart';
+import '../../models/enum.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/expandable_action_card.dart';
 import '../scheda_auto/scheda_auto_viewmodel.dart';
@@ -22,7 +22,7 @@ class LavoriAutoFragment extends StatelessWidget {
       itemBuilder: (context, index) {
         final l = lavori[index];
         return ExpandableActionCard(
-          icona: Icons.build,
+          iconaAsset: 'assets/images/ic_lavoro.svg',
           titolo: l.nome,
           valore: '${l.costo?.toStringAsFixed(2)}€',
           righeChiaveValore: [

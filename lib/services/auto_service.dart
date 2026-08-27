@@ -1,5 +1,5 @@
 import '../models/auto.dart';
-import '../models/enums.dart';
+import '../models/enum.dart';
 import 'supabase_service.dart';
 
 class AutoService {

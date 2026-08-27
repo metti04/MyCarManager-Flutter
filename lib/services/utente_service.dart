@@ -38,4 +38,10 @@ class UtenteService {
           .eq('usernameUtente', vecchioUsername);
     }
   }
+
+  Future<void> eliminaUtente(String username) async {
+    await _client.from('utenti').delete().eq('username', username);
+    // Nota: le associazioni in 'possedere' dovrebbero essere eliminate dal DB 
+    // se impostate in CASCADE, altrimenti andrebbero rimosse manualmente qui.
+  }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../home/home_screen.dart';
 import '../profilo/profilo_screen.dart';
 import '../../theme/app_colors.dart';
@@ -60,8 +61,8 @@ class _MainScreenState extends State<MainScreen> {
             }
           },
           destinations: [
-            _buildDestination(0, Icons.directions_car, 'Garage'),
-            _buildDestination(1, Icons.person, 'Profilo'),
+            _buildDestination(0, 'assets/images/ic_auto.svg', 'Garage'),
+            _buildDestination(1, 'assets/images/ic_profilo.svg', 'Profilo'),
           ],
         ),
       ),
@@ -77,11 +78,16 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  NavigationDestination _buildDestination(int index, IconData icon, String label) {
+  NavigationDestination _buildDestination(int index, String assetPath, String label) {
     final isSelected = _selectedIndex == index;
     final color = isSelected ? AppColors.azzurro : AppColors.bianco;
     return NavigationDestination(
-      icon: Icon(icon, color: color),
+      icon: SvgPicture.asset(
+        assetPath,
+        colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+        width: 28,
+        height: 28,
+      ),
       label: label,
     );
   }

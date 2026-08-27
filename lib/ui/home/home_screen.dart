@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../../theme/app_colors.dart';
 import '../../widgets/blue_header_card.dart';
@@ -128,13 +129,15 @@ class _HomeScreenState extends State<HomeScreen> {
             // Sezione Spese
             Expanded(
               child: InkWell(
-                onTap: () {
-                   // Naviga a spese se necessario
-                },
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.euro, color: AppColors.blu, size: 28),
+                    SvgPicture.asset(
+                      'assets/images/ic_spese.svg',
+                      colorFilter: const ColorFilter.mode(AppColors.blu, BlendMode.srcIn),
+                      width: 28,
+                      height: 28,
+                    ),
                     const Text('Spese', style: TextStyle(fontSize: 14, color: AppColors.nero)),
                     Text(
                       '${viewModel.speseDelMese.toStringAsFixed(2)}€',
@@ -148,13 +151,15 @@ class _HomeScreenState extends State<HomeScreen> {
             // Sezione Scadenze
             Expanded(
               child: InkWell(
-                onTap: () {
-                   // Naviga a scadenze se necessario
-                },
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.alarm, color: AppColors.verde, size: 28),
+                    SvgPicture.asset(
+                      'assets/images/ic_sveglia.svg',
+                      colorFilter: const ColorFilter.mode(AppColors.verde, BlendMode.srcIn),
+                      width: 28,
+                      height: 28,
+                    ),
                     const Text('Scadenze', style: TextStyle(fontSize: 14, color: AppColors.nero)),
                     Text(
                       '${viewModel.scadenzeImminenti}',

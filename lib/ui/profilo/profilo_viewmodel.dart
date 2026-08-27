@@ -43,6 +43,26 @@ class ProfiloViewModel extends ChangeNotifier {
     }
   }
 
+  Future<bool> eliminaAccount() async {
+    final username = _utente?.username ?? await _sessionManager.getUsername();
+    if (username == null) return false;
+
+    _loading = true;
+    notifyListeners();
+
+    try {
+      await _utenteService.eliminaUtente(username);
+      await logout();
+      return true;
+    } catch (e) {
+      debugPrint('Errore eliminazione account: $e');
+      return false;
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> logout() async {
     try {
       await SupabaseService.client.auth.signOut();

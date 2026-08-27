@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/auto.dart';
-import '../../models/enums.dart';
+import '../../models/enum.dart';
 import '../../models/lavoro.dart';
 import '../../models/obbligo.dart';
 import '../../services/auto_service.dart';

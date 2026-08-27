@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
-import 'package:my_car_manager/models/enums.dart';
-import 'package:my_car_manager/models/lavoro.dart';
-import 'package:my_car_manager/models/obbligo.dart';
-import 'package:my_car_manager/theme/app_colors.dart';
-import 'package:my_car_manager/ui/scheda_auto/scheda_auto_viewmodel.dart';
-import 'package:my_car_manager/ui/scheda_auto/fragments/dettagli_auto_fragment.dart';
-import 'package:my_car_manager/ui/spese/spese_auto_fragment.dart';
-import 'package:my_car_manager/ui/scadenze/scadenze_auto_fragment.dart';
-import 'package:my_car_manager/ui/lavori/lavori_auto_fragment.dart';
-import 'package:my_car_manager/ui/obblighi/obblighi_auto_fragment.dart';
-import 'package:my_car_manager/ui/lavori/lavoro_screen.dart';
-import 'package:my_car_manager/ui/obblighi/obbligo_screen.dart';
+import '../../models/enum.dart';
+import '../../models/lavoro.dart';
+import '../../models/obbligo.dart';
+import '../../theme/app_colors.dart';
+import 'scheda_auto_viewmodel.dart';
+import 'dettagli_auto_fragment.dart';
+import '../spese/spese_auto_fragment.dart';
+import '../scadenze/scadenze_auto_fragment.dart';
+import '../lavori/lavori_auto_fragment.dart';
+import '../obblighi/obblighi_auto_fragment.dart';
+import '../lavori/lavoro_screen.dart';
+import '../obblighi/obbligo_screen.dart';
 
 class SchedaAutoScreen extends StatelessWidget {
   final String targa;
@@ -46,7 +47,12 @@ class SchedaAutoScreen extends StatelessWidget {
                         child: Row(
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.arrow_back, color: AppColors.nero),
+                              icon: SvgPicture.asset(
+                                'assets/images/ic_freccia_indietro.svg',
+                                colorFilter: const ColorFilter.mode(AppColors.nero, BlendMode.srcIn),
+                                width: 24,
+                                height: 24,
+                              ),
                               onPressed: () => Navigator.of(context).pop(),
                             ),
                             Expanded(
@@ -61,7 +67,12 @@ class SchedaAutoScreen extends StatelessWidget {
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.delete, color: AppColors.rosso),
+                              icon: SvgPicture.asset(
+                                'assets/images/ic_elimina.svg',
+                                colorFilter: const ColorFilter.mode(AppColors.rosso, BlendMode.srcIn),
+                                width: 24,
+                                height: 24,
+                              ),
                               onPressed: () => _confermaEliminaAuto(context, viewModel),
                             ),
                           ],
@@ -77,8 +88,12 @@ class SchedaAutoScreen extends StatelessWidget {
                           child: Container(
                             width: 120,
                             height: 120,
-                            padding: const EdgeInsets.all(10),
-                            child: const Icon(Icons.directions_car, size: 80, color: AppColors.blu),
+                            padding: const EdgeInsets.all(20),
+                            child: SvgPicture.asset(
+                              'assets/images/ic_auto.svg',
+                              colorFilter: const ColorFilter.mode(AppColors.blu, BlendMode.srcIn),
+                              fit: BoxFit.contain,
+                            ),
                           ),
                         ),
                       ),
@@ -113,17 +128,17 @@ class SchedaAutoScreen extends StatelessWidget {
                         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
-                          color: AppColors.bianco.withValues(alpha: 0.5),
+                          color: AppColors.bianco.withOpacity(0.5),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            _menuIcon(viewModel, 0, Icons.info_outline, 'Dettagli'),
-                            _menuIcon(viewModel, 1, Icons.euro, 'Spese'),
-                            _menuIcon(viewModel, 2, Icons.alarm, 'Scadenze'),
-                            _menuIcon(viewModel, 3, Icons.build, 'Lavori'),
-                            _menuIcon(viewModel, 4, Icons.assignment, 'Obblighi'),
+                            _menuIcon(viewModel, 0, 'assets/images/ic_info.svg', 'Dettagli'),
+                            _menuIcon(viewModel, 1, 'assets/images/ic_spese.svg', 'Spese'),
+                            _menuIcon(viewModel, 2, 'assets/images/ic_scadenze.svg', 'Scadenze'),
+                            _menuIcon(viewModel, 3, 'assets/images/ic_lavoro.svg', 'Lavori'),
+                            _menuIcon(viewModel, 4, 'assets/images/ic_obbligo.svg', 'Obblighi'),
                           ],
                         ),
                       ),
@@ -211,7 +226,7 @@ class SchedaAutoScreen extends StatelessWidget {
     }
   }
 
-  Widget _menuIcon(SchedaAutoViewModel viewModel, int index, IconData icon, String label) {
+  Widget _menuIcon(SchedaAutoViewModel viewModel, int index, String assetPath, String label) {
     final isSelected = viewModel.currentTab == index;
     final color = isSelected ? AppColors.blu : AppColors.nero;
     return InkWell(
@@ -219,7 +234,12 @@ class SchedaAutoScreen extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: color, size: 28),
+          SvgPicture.asset(
+            assetPath,
+            colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+            width: 28,
+            height: 28,
+          ),
           Text(
             label,
             style: TextStyle(

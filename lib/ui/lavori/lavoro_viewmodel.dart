@@ -1,46 +1,16 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../../models/lavoro.dart';
-import '../../models/enums.dart';
-import '../../models/ai_data_models.dart';
+import '../../models/enum.dart';
 import '../../services/lavoro_service.dart';
-import '../../services/api_services/lavoro_api_service.dart';
 
 class LavoroViewModel extends ChangeNotifier {
   final _lavoroService = LavoroService();
-  final _apiService = LavoroApiService();
 
   bool _loading = false;
   bool get loading => _loading;
 
   String? _error;
   String? get error => _error;
-
-  InvoiceResult? _datiestratti;
-  InvoiceResult? get datiestratti => _datiestratti;
-
-  // Carica i dati estratti tramite IA dall'immagine della fattura.
-  Future<void> estraiDatiDaFattura(Uint8List imageBytes) async {
-    _loading = true;
-    _error = null;
-    notifyListeners();
-
-    try {
-      final result = await _apiService.extractWorkData(imageBytes);
-      _datiestratti = result;
-    } catch (e) {
-      _error = "Errore durante l'estrazione: $e";
-    } finally {
-      _loading = false;
-      notifyListeners();
-    }
-  }
-
-  // Pulisce i dati estratti dopo l'uso.
-  void resetDatiEstratti() {
-    _datiestratti = null;
-    notifyListeners();
-  }
 
   // Salva il lavoro nel database e gestisce la creazione automatica della scadenza successiva se ordinario.
   Future<bool> salvaLavoro({

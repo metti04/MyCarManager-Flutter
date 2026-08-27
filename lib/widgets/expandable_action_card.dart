@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../theme/app_colors.dart';
 
 class DetailRow {
@@ -8,7 +9,8 @@ class DetailRow {
 }
 
 class ExpandableActionCard extends StatefulWidget {
-  final IconData icona;
+  final String? iconaAsset;
+  final IconData? icona;
   final String titolo;
   final String valore;
   final List<DetailRow> righeChiaveValore;
@@ -18,7 +20,8 @@ class ExpandableActionCard extends StatefulWidget {
 
   const ExpandableActionCard({
     super.key,
-    required this.icona,
+    this.iconaAsset,
+    this.icona,
     required this.titolo,
     required this.valore,
     this.righeChiaveValore = const [],
@@ -56,7 +59,14 @@ class _ExpandableActionCardState extends State<ExpandableActionCard> {
                     height: 48,
                     alignment: Alignment.center,
                     decoration: const BoxDecoration(color: AppColors.bluChiaro, shape: BoxShape.circle),
-                    child: Icon(widget.icona, size: 24, color: AppColors.blu),
+                    child: widget.iconaAsset != null 
+                      ? SvgPicture.asset(
+                          widget.iconaAsset!,
+                          width: 24,
+                          height: 24,
+                          colorFilter: const ColorFilter.mode(AppColors.blu, BlendMode.srcIn),
+                        )
+                      : Icon(widget.icona, size: 24, color: AppColors.blu),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -95,8 +105,24 @@ class _ExpandableActionCardState extends State<ExpandableActionCard> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          IconButton(icon: const Icon(Icons.delete, color: AppColors.rosso), onPressed: widget.onDelete),
-                          IconButton(icon: const Icon(Icons.edit, color: AppColors.blu), onPressed: widget.onEdit),
+                          IconButton(
+                            icon: SvgPicture.asset(
+                              'assets/images/ic_elimina.svg',
+                              colorFilter: const ColorFilter.mode(AppColors.rosso, BlendMode.srcIn),
+                              width: 24,
+                              height: 24,
+                            ),
+                            onPressed: widget.onDelete,
+                          ),
+                          IconButton(
+                            icon: SvgPicture.asset(
+                              'assets/images/ic_modifica.svg',
+                              colorFilter: const ColorFilter.mode(AppColors.blu, BlendMode.srcIn),
+                              width: 24,
+                              height: 24,
+                            ),
+                            onPressed: widget.onEdit,
+                          ),
                         ],
                       ),
                     ],

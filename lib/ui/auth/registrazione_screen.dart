@@ -34,11 +34,16 @@ class _RegistrazioneScreenState extends State<RegistrazioneScreen> {
               bottom: false,
               child: Column(
                 children: [
-                  // Header con Icona o Logo
+                  // Header con Logo
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 30),
-                    child: const Center(
-                      child: Icon(Icons.person_add, size: 80, color: AppColors.bianco),
+                    child: Center(
+                      child: Image.asset(
+                        'assets/images/iconaloginregistrazione.png',
+                        width: 150,
+                        height: 120,
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
                   // Contenitore Bianco Arrotondato

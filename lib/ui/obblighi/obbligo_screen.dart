@@ -1,14 +1,10 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:pdfx/pdfx.dart';
-import 'package:my_car_manager/models/obbligo.dart';
-import 'package:my_car_manager/theme/app_colors.dart';
-import 'package:my_car_manager/widgets/blue_header_card.dart';
-import 'package:my_car_manager/ui/obblighi/obbligo_viewmodel.dart';
+import '../../models/obbligo.dart';
+import '../../theme/app_colors.dart';
+import '../../widgets/blue_header_card.dart';
+import 'obbligo_viewmodel.dart';
 
 class ObbligoScreen extends StatefulWidget {
   final String? targa;
@@ -27,7 +23,6 @@ class _ObbligoScreenState extends State<ObbligoScreen> {
 
   DateTime _dataScadenza = DateTime.now().add(const Duration(days: 365));
   DateTime? _dataPagamento;
-  final _picker = ImagePicker();
 
   @override
   void initState() {
@@ -53,30 +48,6 @@ class _ObbligoScreenState extends State<ObbligoScreen> {
       create: (_) => ObbligoViewModel(),
       child: Consumer<ObbligoViewModel>(
         builder: (context, viewModel, _) {
-          // Ascolta i dati estratti dall'IA
-          if (viewModel.datiestratti != null) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              setState(() {
-                if (viewModel.datiestratti!.targa != null && _targaController.text.isEmpty) {
-                   _targaController.text = viewModel.datiestratti!.targa!;
-                }
-                if (viewModel.datiestratti!.nome != null) _nomeController.text = viewModel.datiestratti!.nome!;
-                if (viewModel.datiestratti!.costo != null) _costoController.text = viewModel.datiestratti!.costo!;
-                if (viewModel.datiestratti!.dataScadenza != null) {
-                  try {
-                    _dataScadenza = df.parse(viewModel.datiestratti!.dataScadenza!);
-                  } catch (_) {}
-                }
-                if (viewModel.datiestratti!.dataPagamento != null) {
-                  try {
-                    _dataPagamento = df.parse(viewModel.datiestratti!.dataPagamento!);
-                  } catch (_) {}
-                }
-              });
-              viewModel.resetDatiEstratti();
-            });
-          }
-
           return Scaffold(
             backgroundColor: AppColors.bluChiaro2,
             body: SafeArea(
@@ -85,35 +56,6 @@ class _ObbligoScreenState extends State<ObbligoScreen> {
                   BlueHeaderCard(
                     title: isModifica ? 'Modifica Obbligo' : 'Nuovo Obbligo',
                     height: 220,
-                    actionBox: InkWell(
-                      onTap: () => _mostraOpzioniScansione(viewModel),
-                      child: Container(
-                        padding: const EdgeInsets.all(15),
-                        decoration: BoxDecoration(
-                          color: AppColors.bianco.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: AppColors.bianco, width: 1),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            if (viewModel.loading)
-                               const SizedBox(
-                                 width: 20,
-                                 height: 20,
-                                 child: CircularProgressIndicator(color: AppColors.bianco, strokeWidth: 2),
-                               )
-                            else
-                               const Icon(Icons.document_scanner, color: AppColors.bianco),
-                            const SizedBox(width: 10),
-                            const Text(
-                              'Scansiona Bollo/Assic.',
-                              style: TextStyle(color: AppColors.bianco, fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
                   ),
                   Expanded(
                     child: SingleChildScrollView(
@@ -250,66 +192,5 @@ class _ObbligoScreenState extends State<ObbligoScreen> {
         child: Text(value, style: const TextStyle(color: AppColors.blu, fontWeight: FontWeight.bold, fontSize: 16)),
       ),
     );
-  }
-
-  void _mostraOpzioniScansione(ObbligoViewModel viewModel) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (context) => SafeArea(
-        child: Wrap(
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt, color: AppColors.blu),
-              title: const Text('Fotocamera'),
-              onTap: () async {
-                Navigator.pop(context);
-                final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
-                if (photo != null) viewModel.estraiDatiDaDocumento(await photo.readAsBytes());
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library, color: AppColors.blu),
-              title: const Text('Galleria'),
-              onTap: () async {
-                Navigator.pop(context);
-                final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-                if (image != null) viewModel.estraiDatiDaDocumento(await image.readAsBytes());
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.picture_as_pdf, color: AppColors.blu),
-              title: const Text('Documenti (PDF)'),
-              onTap: () async {
-                Navigator.pop(context);
-                final FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
-                if (result != null && result.files.single.path != null) {
-                  final bytes = await _renderPdfPage(result.files.single.path!);
-                  if (bytes != null) viewModel.estraiDatiDaDocumento(bytes);
-                }
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<Uint8List?> _renderPdfPage(String path) async {
-    try {
-      final document = await PdfDocument.openFile(path);
-      final page = await document.getPage(1);
-      final pageImage = await page.render(
-        width: page.width * 2,
-        height: page.height * 2,
-        format: PdfPageImageFormat.jpeg,
-      );
-      await page.close();
-      await document.close();
-      return pageImage?.bytes;
-    } catch (e) {
-      debugPrint('Errore rendering PDF: $e');
-      return null;
-    }
   }
 }

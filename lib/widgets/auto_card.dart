@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../models/auto.dart';
-import '../models/enums.dart';
+import '../models/enum.dart';
 import '../theme/app_colors.dart';
 
 class AutoCard extends StatelessWidget {
@@ -36,7 +37,10 @@ class AutoCard extends StatelessWidget {
                   width: 90,
                   height: 90,
                   padding: const EdgeInsets.all(10),
-                  child: const Icon(Icons.directions_car, size: 50, color: AppColors.blu),
+                  child: SvgPicture.asset(
+                    'assets/images/ic_auto.svg',
+                    colorFilter: const ColorFilter.mode(AppColors.blu, BlendMode.srcIn),
+                  ),
                 ),
               ),
               const SizedBox(width: 16),
@@ -76,7 +80,12 @@ class AutoCard extends StatelessWidget {
                 ),
               ),
               // Icona Sveglia
-              Icon(Icons.alarm, size: 28, color: svegliaColor),
+              SvgPicture.asset(
+                'assets/images/ic_sveglia.svg',
+                colorFilter: ColorFilter.mode(svegliaColor, BlendMode.srcIn),
+                width: 28,
+                height: 28,
+              ),
             ],
           ),
         ),

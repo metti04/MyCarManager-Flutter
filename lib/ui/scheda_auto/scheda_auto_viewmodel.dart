@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/auto.dart';
 import '../../models/lavoro.dart';
 import '../../models/obbligo.dart';
-import '../../models/enums.dart';
+import '../../models/enum.dart';
 import '../../services/auto_service.dart';
 import '../../services/lavoro_service.dart';
 import '../../services/obbligo_service.dart';

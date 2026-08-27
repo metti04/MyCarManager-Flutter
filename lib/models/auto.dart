@@ -1,4 +1,4 @@
-import 'enums.dart';
+import 'enum.dart';
 
 class Auto {
   final String targa;
