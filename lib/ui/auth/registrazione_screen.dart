@@ -91,6 +91,7 @@ class _RegistrazioneScreenState extends State<RegistrazioneScreen> {
                                 if (picked != null) setState(() => _dataNascita = picked);
                               },
                               child: InputDecorator(
+                                isEmpty: _dataNascita == null,
                                 decoration: InputDecoration(
                                   labelText: 'Data di nascita',
                                   labelStyle: const TextStyle(color: AppColors.blu),
