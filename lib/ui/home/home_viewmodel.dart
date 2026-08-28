@@ -32,7 +32,10 @@ class HomeViewModel extends ChangeNotifier {
   int _countImminenti = 0;
   int get countImminenti => _countImminenti;
 
-  int get scadenzeTotali => _countScadute + _countImminenti;
+  int _countRegolari = 0;
+  int get countRegolari => _countRegolari;
+
+  int get scadenzeTotali => _countScadute + _countImminenti + _countRegolari;
 
   bool _loading = false;
   bool get loading => _loading;
@@ -50,6 +53,7 @@ class HomeViewModel extends ChangeNotifier {
       double speseTotali = 0.0;
       int scadute = 0;
       int imminenti = 0;
+      int regolari = 0;
       final now = DateTime.now();
 
       // 2. Analizza ogni auto per calcolare spese e scadenze complessive
@@ -76,6 +80,9 @@ class HomeViewModel extends ChangeNotifier {
               imminenti++;
               carHasDeadlines = true;
             }
+            else {
+              regolari++;
+            }
           }
         }
 
@@ -94,6 +101,9 @@ class HomeViewModel extends ChangeNotifier {
               imminenti++;
               carHasDeadlines = true;
             }
+            else {
+              regolari++;
+            }
           }
         }
         _autoConScadenze[auto.targa] = carHasDeadlines;
@@ -102,6 +112,7 @@ class HomeViewModel extends ChangeNotifier {
       _speseTotali = speseTotali;
       _countScadute = scadute;
       _countImminenti = imminenti;
+      _countRegolari = regolari;
 
     } catch (e) {
       debugPrint('Errore caricamento dati home: $e');

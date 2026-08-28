@@ -6,15 +6,25 @@ import '../theme/app_colors.dart';
 
 class AutoCard extends StatelessWidget {
   final Auto auto;
-  final bool scadenzaImminente;
+  final int countImminenti;
+  final int countScadute;
   final VoidCallback? onTap;
 
-  const AutoCard({super.key, required this.auto, this.scadenzaImminente = false, this.onTap});
+  const AutoCard({super.key, required this.auto, required this.countImminenti, required this.countScadute, this.onTap});
+
+  Color _getSvegliaColor() {
+    if (countImminenti > 0)
+        return AppColors.arancione;
+    if (countScadute > 0)
+        return AppColors.rosso; // Assicurati che AppColors.arancione sia definitoù
+
+    return AppColors.verde;
+  }
 
   @override
   Widget build(BuildContext context) {
     final statoColor = auto.stato == StatoAuto.attivo ? AppColors.verde : AppColors.rosso;
-    final svegliaColor = scadenzaImminente ? AppColors.rosso : AppColors.verde;
+    final svegliaColor = _getSvegliaColor();
 
     return Card(
       elevation: 2,

@@ -85,7 +85,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     final auto = viewModel.autos[index];
                                     return AutoCard(
                                       auto: auto,
-                                      scadenzaImminente: viewModel.haScadenze(auto.targa),
+                                      countImminenti: viewModel.countImminenti,
+                                      countScadute: viewModel.countScadute,
                                       onTap: () async {
                                         await Navigator.of(context).push(
                                           MaterialPageRoute(
