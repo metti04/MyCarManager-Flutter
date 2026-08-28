@@ -8,7 +8,8 @@ import '../../widgets/blue_header_card.dart';
 import 'censimento_viewmodel.dart';
 
 class CensimentoScreen extends StatefulWidget {
-  const CensimentoScreen({super.key});
+  final String username;
+  const CensimentoScreen({super.key, required this.username});
 
   @override
   State<CensimentoScreen> createState() => _CensimentoScreenState();
@@ -109,7 +110,7 @@ class _CensimentoScreenState extends State<CensimentoScreen> {
                                             potenza: int.tryParse(_potenzaController.text) ?? 0,
                                             stato: StatoAuto.attivo,
                                             chilometraggio: int.tryParse(_kmController.text) ?? 0,
-                                          ));
+                                          ), widget.username);
                                           if (success && context.mounted) {
                                             Navigator.of(context).pop();
                                           }

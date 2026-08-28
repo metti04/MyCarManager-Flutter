@@ -19,9 +19,12 @@ class HomeViewModel extends ChangeNotifier {
   List<Auto> _autos = [];
   List<Auto> get autos => _autos;
 
-  // Mappa per sapere se un'auto ha scadenze imminenti o scadute
-  final Map<String, bool> _autoConScadenze = {};
-  bool haScadenze(String targa) => _autoConScadenze[targa] ?? false;
+  // Mappe per sapere lo stato delle scadenze per singola auto
+  final Map<String, int> _scadutePerAuto = {};
+  final Map<String, int> _imminentiPerAuto = {};
+
+  int getScadute(String targa) => _scadutePerAuto[targa] ?? 0;
+  int getImminenti(String targa) => _imminentiPerAuto[targa] ?? 0;
 
   double _speseTotali = 0.0;
   double get speseTotali => _speseTotali;
@@ -56,12 +59,16 @@ class HomeViewModel extends ChangeNotifier {
       int regolari = 0;
       final now = DateTime.now();
 
+      _scadutePerAuto.clear();
+      _imminentiPerAuto.clear();
+
       // 2. Analizza ogni auto per calcolare spese e scadenze complessive
       for (var auto in _autos) {
         final lavori = await _lavoroService.getLavoriByTarga(auto.targa);
         final obblighi = await _obbligoService.getObblighiByTarga(auto.targa);
 
-        bool carHasDeadlines = false;
+        int autoScadute = 0;
+        int autoImminenti = 0;
 
         // Calcolo spese totali (tutti i lavori già eseguiti)
         for (var l in lavori) {
@@ -75,10 +82,10 @@ class HomeViewModel extends ChangeNotifier {
 
             if (giorni < 0 || kmRimanenti < 0) {
               scadute++;
-              carHasDeadlines = true;
+              autoScadute++;
             } else if (giorni <= 31 || kmRimanenti <= 1000) {
               imminenti++;
-              carHasDeadlines = true;
+              autoImminenti++;
             }
             else {
               regolari++;
@@ -96,17 +103,18 @@ class HomeViewModel extends ChangeNotifier {
             final giorni = o.dataScadenza!.difference(now).inDays;
             if (giorni < 0) {
               scadute++;
-              carHasDeadlines = true;
+              autoScadute++;
             } else if (giorni <= 31) {
               imminenti++;
-              carHasDeadlines = true;
+              autoImminenti++;
             }
             else {
               regolari++;
             }
           }
         }
-        _autoConScadenze[auto.targa] = carHasDeadlines;
+        _scadutePerAuto[auto.targa] = autoScadute;
+        _imminentiPerAuto[auto.targa] = autoImminenti;
       }
       
       _speseTotali = speseTotali;

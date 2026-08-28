@@ -13,12 +13,12 @@ class AutoCard extends StatelessWidget {
   const AutoCard({super.key, required this.auto, required this.countImminenti, required this.countScadute, this.onTap});
 
   Color _getSvegliaColor() {
-    if (countImminenti > 0)
-        return AppColors.arancione;
     if (countScadute > 0)
-        return AppColors.rosso; // Assicurati che AppColors.arancione sia definitoù
-
-    return AppColors.verde;
+        return AppColors.rosso;
+    else if (countImminenti > 0)
+        return AppColors.arancione;
+    else
+      return AppColors.verde;
   }
 
   @override

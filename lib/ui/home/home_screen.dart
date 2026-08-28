@@ -85,8 +85,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     final auto = viewModel.autos[index];
                                     return AutoCard(
                                       auto: auto,
-                                      countImminenti: viewModel.countImminenti,
-                                      countScadute: viewModel.countScadute,
+                                      countImminenti: viewModel.getImminenti(auto.targa),
+                                      countScadute: viewModel.getScadute(auto.targa),
                                       onTap: () async {
                                         await Navigator.of(context).push(
                                           MaterialPageRoute(
@@ -105,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             floatingActionButton: FloatingActionButton.extended(
               onPressed: () async {
-                await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CensimentoScreen()));
+                await Navigator.of(context).push(MaterialPageRoute(builder: (_) => CensimentoScreen(username: widget.username,)));
                 viewModel.caricaTuttiIDati(widget.username);
               },
               backgroundColor: AppColors.blu,
