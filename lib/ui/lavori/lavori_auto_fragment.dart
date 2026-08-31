@@ -28,7 +28,6 @@ class LavoriAutoFragment extends StatelessWidget {
           righeChiaveValore: [
             DetailRow('Data', DateFormat('dd/MM/yyyy').format(l.data)),
             if (l.chilometraggio != null) DetailRow('Km', '${l.chilometraggio} Km'),
-            DetailRow('Stato', l.stato == StatoLavoro.eseguito ? 'Eseguito' : 'Da eseguire'),
           ],
           descrizioneLibera: 'Lavoro ${l.tipologia == TipologiaLavoro.ordinario ? "Ordinario" : "Non ordinario"}\n${l.descrizione ?? ""}',
           onEdit: () => onEdit(l),

@@ -29,7 +29,6 @@ class ObblighiAutoFragment extends StatelessWidget {
           righeChiaveValore: [
             if (o.dataPagamento != null) DetailRow('Pagato il', df.format(o.dataPagamento!)),
             if (o.dataScadenza != null) DetailRow('Scadenza', df.format(o.dataScadenza!)),
-            DetailRow('Stato', o.stato == StatoObbligo.pagato ? 'Pagato' : 'Da pagare'),
           ],
           onEdit: () => onEdit(o),
           onDelete: () => _confermaEliminaObbligo(context, viewModel, o),
