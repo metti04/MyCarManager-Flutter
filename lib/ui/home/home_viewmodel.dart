@@ -64,6 +64,7 @@ class HomeViewModel extends ChangeNotifier {
 
       // 2. Analizza ogni auto per calcolare spese e scadenze complessive
       for (var auto in _autos) {
+        if (auto.stato == StatoAuto.inattivo) continue;
         final lavori = await _lavoroService.getLavoriByTarga(auto.targa);
         final obblighi = await _obbligoService.getObblighiByTarga(auto.targa);
 
