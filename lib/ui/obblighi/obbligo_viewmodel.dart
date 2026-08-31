@@ -33,8 +33,22 @@ class ObbligoViewModel extends ChangeNotifier {
         costo: double.tryParse(costo.replaceAll(',', '.')) ?? 0.0,
         dataScadenza: dataScadenza,
         dataPagamento: dataPagamento,
-        stato: dataPagamento != null ? StatoObbligo.pagato : StatoObbligo.daPagare,
+        stato: StatoObbligo.pagato,
       );
+
+      // Logica per l'inserimento di un nuovo obbligo: crea anche la scadenza futura.
+      if (idEsistente == null) {
+        final scadenza = Obbligo(
+          nome: nome,
+          targaAuto: targa.toUpperCase().trim(),
+          costo: double.tryParse(costo.replaceAll(',', '.')) ?? 0.0,
+          dataScadenza: dataScadenza,
+          dataPagamento: null,
+          stato: StatoObbligo.daPagare,
+        );
+
+        await _obbligoService.inserisciObbligo(scadenza);
+      }
 
       if (idEsistente == null) {
         await _obbligoService.inserisciObbligo(obbligo);
