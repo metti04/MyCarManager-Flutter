@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:workmanager/workmanager.dart';
 import 'services/session_manager.dart';
 import 'services/supabase_service.dart';
@@ -36,11 +37,17 @@ class MyCarManagerApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'MyCarManager',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      home: const _AuthGate(),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light
+      ),
+      child: MaterialApp(
+        title: 'MyCarManager',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light,
+        home: const _AuthGate(),
+      ),
     );
   }
 }

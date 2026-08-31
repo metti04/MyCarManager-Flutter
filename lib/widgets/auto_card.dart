@@ -5,16 +5,26 @@ import '../models/enum.dart';
 import '../theme/app_colors.dart';
 
 class AutoCard extends StatelessWidget {
+  // L'oggetto auto da visualizzare.
   final Auto auto;
-  final bool scadenzaImminente;
+
+  // Colore dell'icona sveglia in Verde se in regola
+  // Giallo/Arancione se imminente e  Rosso se scaduta
+  final Color svegliaColor;
+
+
   final VoidCallback? onTap;
 
-  const AutoCard({super.key, required this.auto, this.scadenzaImminente = false, this.onTap});
+  const AutoCard({
+    super.key,
+    required this.auto,
+    this.svegliaColor = AppColors.verde,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     final statoColor = auto.stato == StatoAuto.attivo ? AppColors.verde : AppColors.rosso;
-    final svegliaColor = scadenzaImminente ? AppColors.rosso : AppColors.verde;
 
     return Card(
       elevation: 2,

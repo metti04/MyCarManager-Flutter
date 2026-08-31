@@ -87,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     final auto = viewModel.autos[index];
                                     return AutoCard(
                                       auto: auto,
-                                      scadenzaImminente: viewModel.haScadenze(auto.targa),
+                                      svegliaColor: viewModel.getSvegliaColor(auto.targa),
                                       onTap: () async {
                                         // Navigazione verso la scheda del veicolo
                                         await Navigator.of(context).push(
