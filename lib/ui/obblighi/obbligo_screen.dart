@@ -89,7 +89,7 @@ class _ObbligoScreenState extends State<ObbligoScreen> {
                               );
                               if (picked != null) setState(() => _dataPagamento = picked);
                             },
-                            child: _buildWhiteFieldStatic(_dataPagamento == null ? 'Non pagato' : df.format(_dataPagamento!), 'Data Pagamento (opzionale)'),
+                            child: _buildWhiteFieldStatic(df.format(_dataPagamento ?? DateTime.now()), 'Data Pagamento'),
                           ),
 
                           const SizedBox(height: 24),
