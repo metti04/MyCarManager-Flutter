@@ -47,7 +47,7 @@ class LavoriAutoFragment extends StatelessWidget {
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Annulla')),
           TextButton(
             onPressed: () async {
-              await viewModel.eliminaLavoro(l.id!);
+              await viewModel.eliminaLavoro(l);
               if (ctx.mounted) Navigator.pop(ctx);
             },
             child: const Text('Elimina', style: TextStyle(color: AppColors.rosso)),

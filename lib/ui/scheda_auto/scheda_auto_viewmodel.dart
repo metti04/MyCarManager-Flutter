@@ -111,16 +111,22 @@ class SchedaAutoViewModel extends ChangeNotifier {
   /// Elimina un singolo intervento di lavoro.
   ///
   /// [id] L'identificativo del lavoro da eliminare.
-  Future<void> eliminaLavoro(int id) async {
-    await _lavoroService.eliminaLavoro(id);
+  Future<void> eliminaLavoro(Lavoro lavoro) async {
+    await _lavoroService.eliminaLavoro(lavoro.id!);
+    if (lavoro.tipologia == TipologiaLavoro.ordinario)
+      {
+        await _lavoroService.eliminaScadenza(lavoro);
+      }
+    
     if (_auto != null) await caricaDati(_auto!.targa);
   }
 
   /// Elimina un obbligo fiscale.
   ///
   /// [id] L'identificativo dell'obbligo da eliminare.
-  Future<void> eliminaObbligo(int id) async {
-    await _obbligoService.eliminaObbligo(id);
+  Future<void> eliminaObbligo(Obbligo obbligo) async {
+    await _obbligoService.eliminaObbligo(obbligo.id!);
+    await _obbligoService.eliminaScadenza(obbligo);
     if (_auto != null) await caricaDati(_auto!.targa);
   }
 

@@ -1,3 +1,4 @@
+import '../models/enum.dart';
 import '../models/obbligo.dart';
 import 'supabase_service.dart';
 
@@ -24,5 +25,10 @@ class ObbligoService {
 
   Future<void> eliminaObbligo(int id) async {
     await _client.from('obblighi').delete().eq('ID', id);
+  }
+
+  Future<void> eliminaScadenza(Obbligo obbligo) async {
+    await _client.from('obblighi').delete().eq('targaAuto', obbligo.targaAuto!).eq('dataScadenza', obbligo.dataScadenza!)
+    .eq('costo', obbligo.costo!).eq('nome', obbligo.nome!).eq('stato', StatoObbligo.daPagare.dbValue);
   }
 }

@@ -1,3 +1,4 @@
+import '../models/enum.dart';
 import '../models/lavoro.dart';
 import 'supabase_service.dart';
 
@@ -24,5 +25,11 @@ class LavoroService {
 
   Future<void> eliminaLavoro(int id) async {
     await _client.from('lavori').delete().eq('ID', id);
+  }
+
+  Future<void> eliminaScadenza(Lavoro lavoro) async {
+    await _client.from('lavori').delete().eq('targaAuto', lavoro.targaAuto).eq('nome', lavoro.nome)
+        .eq('tipologia', lavoro.tipologia.dbValue).eq('descrizione', lavoro.descrizione!).eq('intervalloTempo', lavoro.intervalloTempo!)
+        .eq('intervalloKm', lavoro.intervalloKm!).eq('stato', StatoLavoro.daEseguire.dbValue);
   }
 }
