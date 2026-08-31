@@ -3,12 +3,21 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../models/utente.dart';
 import '../theme/app_colors.dart';
 
+
 class UtenteListTile extends StatelessWidget {
+
   final Utente utente;
+
   final bool selezionato;
+
   final VoidCallback? onTap;
 
-  const UtenteListTile({super.key, required this.utente, this.selezionato = false, this.onTap});
+  const UtenteListTile({
+    super.key,
+    required this.utente,
+    this.selezionato = false,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +28,7 @@ class UtenteListTile extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // Avatar circolare con icona account
             CircleAvatar(
               radius: 20,
               backgroundColor: AppColors.bluChiaro,
@@ -30,6 +40,7 @@ class UtenteListTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
+            // Informazioni dell'utente (Username ed Email)
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,6 +50,7 @@ class UtenteListTile extends StatelessWidget {
                 ],
               ),
             ),
+            // Indicatore radio per la selezione dell'utente
             IgnorePointer(
               child: Radio<bool>(value: true, groupValue: selezionato ? true : false, onChanged: null),
             ),

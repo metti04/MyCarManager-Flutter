@@ -27,6 +27,7 @@ Future<void> main() async {
     existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
   );
 
+  // Avvio del widget radice dell'applicazione.
   runApp(const MyCarManagerApp());
 }
 
@@ -50,15 +51,19 @@ class _AuthGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<String?>(
+      // Recupera lo username memorizzato nella sessione.
       future: SessionManager().getUsername(),
       builder: (context, snapshot) {
+        // Mostra un indicatore di caricamento in attesa dell'esito della sessione.
         if (snapshot.connectionState != ConnectionState.done) {
           return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
         final username = snapshot.data;
+        // Se lo username è presente, passa alla schermata principale.
         if (username != null && username.isNotEmpty) {
           return MainScreen(username: username);
         }
+        // Altrimenti richiede il login.
         return const LoginScreen();
       },
     );

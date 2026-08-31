@@ -41,6 +41,7 @@ class _DettagliAutoFragmentState extends State<DettagliAutoFragment> {
                   _infoRow('VIN', widget.auto.vin),
                   _infoRow('Motore', widget.auto.identificatoreMotore),
                   const SizedBox(height: 15),
+// Sezione chilometraggio con possibilità di modifica in-place
                   Row(
                     children: [
                       const Text('KM attuali: ', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.nero)),
@@ -59,6 +60,7 @@ class _DettagliAutoFragmentState extends State<DettagliAutoFragment> {
                               ),
                       ),
                       const SizedBox(width: 8),
+                      // Pulsante per abilitare/salvare la modifica del chilometraggio
                       IconButton(
                         icon: _editingKm
                             ? const Icon(Icons.check_circle, color: AppColors.blu)
@@ -89,6 +91,7 @@ class _DettagliAutoFragmentState extends State<DettagliAutoFragment> {
       ),
     );
   }
+
 
   Widget _infoRow(String label, String value) {
     return Padding(

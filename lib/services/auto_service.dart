@@ -6,6 +6,7 @@ class AutoService {
   final _client = SupabaseService.client;
 
   Future<List<Auto>> getAllAuto() async {
+    // Interroga la tabella 'auto' ed effettua il mapping in oggetti Auto
     final data = await _client.from('auto').select();
     return (data as List).map((e) => Auto.fromJson(e)).toList();
   }
@@ -25,12 +26,15 @@ class AutoService {
     return data == null ? null : Auto.fromJson(data);
   }
 
+  // Recupera un elenco di auto corrispondenti a una lista di targhe
+  // Se la lista di targhe è vuota, restituisce immediatamente una lista vuota.
   Future<List<Auto>> getAutoByTarghe(List<String> targhe) async {
     if (targhe.isEmpty) return [];
     final data = await _client.from('auto').select().inFilter('targa', targhe);
     return (data as List).map((e) => Auto.fromJson(e)).toList();
   }
 
+  // Recupera le sole auto attive corrispondenti a una lista di targhe
   Future<List<Auto>> getAutoAttiveByTarghe(List<String> targhe) async {
     if (targhe.isEmpty) return [];
     final data = await _client

@@ -24,6 +24,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Gestisce pressione del tasto indietro di sistema
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
@@ -36,8 +37,7 @@ class _MainScreenState extends State<MainScreen> {
           // Se siamo su un'altra tab e non possiamo tornare indietro, torniamo alla Home
           setState(() => _selectedIndex = 0);
         } else {
-          // Se siamo alla radice della Home, usciamo (o lasciamo gestire al sistema)
-          // In Flutter 3.16+ PopScope canPop false blocca l'uscita, qui si potrebbe chiudere l'app
+          // Se siamo alla radice dell'applicazione può essere chiusa dal sistema
         }
       },
       child: Scaffold(
@@ -54,7 +54,6 @@ class _MainScreenState extends State<MainScreen> {
           selectedIndex: _selectedIndex,
           onDestinationSelected: (index) {
             if (index == _selectedIndex) {
-              // Se l'utente clicca di nuovo sulla tab attiva, torna alla radice della tab
               _navigatorKeys[index]?.currentState?.popUntil((route) => route.isFirst);
             } else {
               setState(() => _selectedIndex = index);

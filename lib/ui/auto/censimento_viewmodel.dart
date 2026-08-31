@@ -17,8 +17,10 @@ class CensimentoViewModel extends ChangeNotifier {
     notifyListeners();
     try {
       final esistenti = await _autoService.getAllAuto();
+      // Verifico l'univocità della targa inserita
       if (esistenti.any((a) => a.targa.toUpperCase() == auto.targa.toUpperCase())) return false;
       
+      // Inserimento dell'auto nel database
       await _autoService.inserisciAuto(auto);
       Possedere possedere = Possedere(targaAuto: auto.targa.toUpperCase(), usernameUtente: username, tipologia: TipologiaGestione.possessore);
       await _possedereService.insertPossedere(possedere);

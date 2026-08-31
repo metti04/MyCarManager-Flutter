@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../../theme/app_colors.dart';
 import 'login_viewmodel.dart';
@@ -41,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-                  // Contenitore Bianco Arrotondato
+                  // Contenitore per login
                   Expanded(
                     child: Container(
                       width: double.infinity,
@@ -58,12 +57,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             const SizedBox(height: 10),
+                            // Campo di input per l'email
                             _buildRoundedTextField(
                               controller: _emailController,
                               label: 'Email',
                               keyboardType: TextInputType.emailAddress,
                             ),
                             const SizedBox(height: 16),
+                            // Campo di input per la password
                             _buildRoundedTextField(
                               controller: _passwordController,
                               label: 'Password',
@@ -79,14 +80,17 @@ class _LoginScreenState extends State<LoginScreen> {
                                   textAlign: TextAlign.center,
                                 ),
                               ),
+                            // Pulsante principale per l'accesso standard
                             FilledButton(
                               onPressed: viewModel.loading
                                   ? null
                                   : () async {
+                                      // Esegue la procedura di login tramite credenziali
                                       final username = await viewModel.login(
                                         _emailController.text,
                                         _passwordController.text,
                                       );
+                                      // Naviga verso la schermata principale in caso di esito positivo
                                       if (username != null && context.mounted) {
                                         Navigator.of(context).pushAndRemoveUntil(
                                           MaterialPageRoute(builder: (_) => MainScreen(username: username)),
@@ -106,38 +110,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                       child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.bianco),
                                     )
                                   : const Text('Accedi', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                            ),
-                            const SizedBox(height: 10),
-                            const Text(
-                              'OPPURE',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: AppColors.bluIntenso, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 10),
-                            OutlinedButton.icon(
-                              onPressed: viewModel.loading
-                                  ? null
-                                  : () async {
-                                      final username = await viewModel.loginWithGoogle();
-                                      if (username != null && context.mounted) {
-                                        Navigator.of(context).pushAndRemoveUntil(
-                                          MaterialPageRoute(builder: (_) => MainScreen(username: username)),
-                                          (route) => false,
-                                        );
-                                      }
-                                    },
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: AppColors.blu,
-                                minimumSize: const Size.fromHeight(60),
-                                side: const BorderSide(color: AppColors.blu, width: 2),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-                              ),
-                              icon: SvgPicture.asset(
-                                'assets/images/ic_google.svg',
-                                width: 24,
-                                height: 24,
-                              ),
-                              label: const Text('Google Sign In', style: TextStyle(fontSize: 18)),
                             ),
                             const SizedBox(height: 12),
                             TextButton(

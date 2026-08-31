@@ -30,18 +30,10 @@ class UtenteService {
 
   Future<void> aggiornaUtente(Utente utente, {String? vecchioUsername}) async {
     await _client.from('utenti').update(utente.toJson()).eq('email', utente.email);
-
-    if (vecchioUsername != null && vecchioUsername != utente.username) {
-      await _client
-          .from('possedere')
-          .update({'usernameUtente': utente.username})
-          .eq('usernameUtente', vecchioUsername);
-    }
   }
 
   Future<void> eliminaUtente(String username) async {
+    await _client.from('possedere').delete().eq('usernameUtente', username);
     await _client.from('utenti').delete().eq('username', username);
-    // Nota: le associazioni in 'possedere' dovrebbero essere eliminate dal DB 
-    // se impostate in CASCADE, altrimenti andrebbero rimosse manualmente qui.
   }
 }

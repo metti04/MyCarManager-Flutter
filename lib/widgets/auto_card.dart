@@ -6,25 +6,15 @@ import '../theme/app_colors.dart';
 
 class AutoCard extends StatelessWidget {
   final Auto auto;
-  final int countImminenti;
-  final int countScadute;
+  final bool scadenzaImminente;
   final VoidCallback? onTap;
 
-  const AutoCard({super.key, required this.auto, required this.countImminenti, required this.countScadute, this.onTap});
-
-  Color _getSvegliaColor() {
-    if (countScadute > 0)
-        return AppColors.rosso;
-    else if (countImminenti > 0)
-        return AppColors.arancione;
-    else
-      return AppColors.verde;
-  }
+  const AutoCard({super.key, required this.auto, this.scadenzaImminente = false, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final statoColor = auto.stato == StatoAuto.attivo ? AppColors.verde : AppColors.rosso;
-    final svegliaColor = _getSvegliaColor();
+    final svegliaColor = scadenzaImminente ? AppColors.rosso : AppColors.verde;
 
     return Card(
       elevation: 2,
@@ -89,7 +79,7 @@ class AutoCard extends StatelessWidget {
                   ],
                 ),
               ),
-              // Icona Sveglia
+              // Icona Sveglia              // Icona Sveglia
               SvgPicture.asset(
                 'assets/images/ic_sveglia.svg',
                 colorFilter: ColorFilter.mode(svegliaColor, BlendMode.srcIn),

@@ -7,23 +7,28 @@ class AppTheme {
   static ThemeData get light {
     return ThemeData(
       useMaterial3: true,
+      // Configurazione dello schema colori principale
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.blu,
         primary: AppColors.blu,
         secondary: AppColors.azzurro,
         surface: AppColors.bianco,
       ),
+      // Colore di sfondo degli Scaffold
       scaffoldBackgroundColor: AppColors.bianco,
+      // Stile dell'AppBar principale
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.blu,
         foregroundColor: AppColors.bianco,
         elevation: 0,
       ),
+      // Stile per le schede
       cardTheme: CardThemeData(
         color: AppColors.bianco,
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
       ),
+      // Stile per i campi di testo
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.bianco,
@@ -42,6 +47,7 @@ class AppTheme {
           borderSide: const BorderSide(color: AppColors.blu, width: 2),
         ),
       ),
+      // Stile per i pulsanti pieni
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: AppColors.blu,
@@ -51,6 +57,7 @@ class AppTheme {
           textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ),
+      // Stile per i pulsanti con bordo
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.blu,
@@ -60,6 +67,7 @@ class AppTheme {
           textStyle: const TextStyle(fontSize: 18),
         ),
       ),
+      // Stile per la barra di navigazione inferiore (NavigationBar).
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.blu,
         indicatorColor: Colors.transparent,

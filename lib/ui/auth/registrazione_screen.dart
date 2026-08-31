@@ -80,6 +80,7 @@ class _RegistrazioneScreenState extends State<RegistrazioneScreen> {
                               obscureText: true,
                             ),
                             const SizedBox(height: 12),
+                            // Selettore per la data di nascita
                             InkWell(
                               onTap: () async {
                                 final picked = await showDatePicker(
@@ -108,10 +109,12 @@ class _RegistrazioneScreenState extends State<RegistrazioneScreen> {
                               ),
                             ),
                             const SizedBox(height: 24),
+                            // Pulsante di conferma della registrazione
                             FilledButton(
                               onPressed: viewModel.loading
                                   ? null
                                   : () async {
+                                      // Costruzione dell'oggetto Utente con i dati raccolti dalla ui
                                       final u = Utente(
                                         username: _usernameController.text,
                                         password: _passwordController.text,
@@ -121,6 +124,7 @@ class _RegistrazioneScreenState extends State<RegistrazioneScreen> {
                                         dataDiNascita: _dataNascita ?? DateTime.now(),
                                       );
                                       final success = await viewModel.registra(u);
+                                      // Se la registrazione va a buon fine va verso la schermata principale
                                       if (success && context.mounted) {
                                         Navigator.of(context).pushAndRemoveUntil(
                                           MaterialPageRoute(builder: (_) => MainScreen(username: u.username)),
@@ -142,6 +146,7 @@ class _RegistrazioneScreenState extends State<RegistrazioneScreen> {
                                   : const Text('Registrati', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                             ),
                             const SizedBox(height: 12),
+                            // Pulsante per tornare al login
                             TextButton(
                               onPressed: () => Navigator.of(context).pop(),
                               child: const Text(

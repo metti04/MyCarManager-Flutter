@@ -12,11 +12,12 @@ import '../models/enum.dart';
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
     try {
-      // Inizializza Supabase e Servizi (necessario in background)
+      // Inizializza Supabase e servizi in background
       await SupabaseService.init();
       final notificationService = NotificationService();
       await notificationService.init();
 
+      // Recupera il nome utente memorizzato nelle preferenze condivise
       final prefs = await SharedPreferences.getInstance();
       final username = prefs.getString('username');
 
@@ -27,6 +28,7 @@ void callbackDispatcher() {
       final lavoroService = LavoroService();
       final obbligoService = ObbligoService();
 
+      // Ottiene le targhe associate all'utente corrente
       final targhe = await possedereService.getTargheByUser(username);
       final now = DateTime.now();
 
@@ -34,7 +36,7 @@ void callbackDispatcher() {
         final auto = await autoService.getAuto(targa);
         if (auto == null || auto.stato != StatoAuto.attivo) continue;
 
-        // Controllo Obblighi
+        // Controllo gli obblighi
         final obblighi = await obbligoService.getObblighiByTarga(targa);
         final scadenzeObblighi = obblighi.where((o) => o.stato == StatoObbligo.daPagare);
         
@@ -44,6 +46,7 @@ void callbackDispatcher() {
 
           final giorniRimanenti = scadenza.difference(now).inDays;
 
+          // Se l'obbligo scade nei prossimi 31 giorni o è già scaduto
           if (giorniRimanenti <= 31) {
             String title;
             String message;
@@ -67,7 +70,7 @@ void callbackDispatcher() {
           }
         }
 
-        // Controllo Lavori
+        // Controllo lavori
         final lavori = await lavoroService.getLavoriByTarga(targa);
         final scadenzeLavori = lavori.where((l) => l.stato == StatoLavoro.daEseguire);
 
@@ -80,6 +83,7 @@ void callbackDispatcher() {
           final isDateImminent = giorniRimanenti <= 31;
           final isKmImminent = kmRimanenti != null && kmRimanenti <= 1000;
 
+          // Invia una notifica se la scadenza temporale o chilometrica è vicina
           if (isDateImminent || isKmImminent) {
             String title = "Lavoro Imminente: ${lavoro.nome}";
             List<String> messages = [];

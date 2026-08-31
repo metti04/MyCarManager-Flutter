@@ -32,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Header con sfondo blu e card con scadenze e spese
                     Stack(
                       clipBehavior: Clip.none,
                       children: [
@@ -54,14 +55,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         Positioned(
-                          bottom: -30, // Posizionato per sovrapporsi
+                          bottom: -30,
                           left: 24,
                           right: 24,
                           child: _buildStatsCard(viewModel),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 45), // Spazio per la card che sporge
+                    const SizedBox(height: 45),
                     const Padding(
                       padding: EdgeInsets.only(left: 24, top: 10, bottom: 5),
                       child: Text(
@@ -73,6 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
+                    // Lista dei veicoli censiti
                     Expanded(
                       child: viewModel.loading
                           ? const Center(child: CircularProgressIndicator())
@@ -85,9 +87,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                     final auto = viewModel.autos[index];
                                     return AutoCard(
                                       auto: auto,
-                                      countImminenti: viewModel.getImminenti(auto.targa),
-                                      countScadute: viewModel.getScadute(auto.targa),
+                                      scadenzaImminente: viewModel.haScadenze(auto.targa),
                                       onTap: () async {
+                                        // Navigazione verso la scheda del veicolo
                                         await Navigator.of(context).push(
                                           MaterialPageRoute(
                                             builder: (_) => SchedaAutoScreen(targa: auto.targa, username: widget.username),
@@ -103,6 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
+            // Pulsante d'azione per censire un nuovo veicolo
             floatingActionButton: FloatingActionButton.extended(
               onPressed: () async {
                 await Navigator.of(context).push(MaterialPageRoute(builder: (_) => CensimentoScreen(username: widget.username,)));
@@ -135,10 +138,9 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: Row(
           children: [
-            // Sezione Spese
+            // Sezione spese
             Expanded(
               child: InkWell(
-
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -159,10 +161,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             Container(width: 1.5, height: 50, color: AppColors.grigino),
-            // Sezione Scadenze
+            // Sezione scadenze
             Expanded(
               child: InkWell(
-
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -176,7 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Text('Scadenze', style: TextStyle(fontSize: 14, color: AppColors.grigio, fontWeight: FontWeight.bold)),
                     Text(
                       '${viewModel.scadenzeTotali}',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.nero),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.nero),
                     ),
                   ],
                 ),

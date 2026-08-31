@@ -22,9 +22,7 @@ class NotificationService {
 
       await _notificationsPlugin.initialize(
         settings: initializationSettings,
-        onDidReceiveNotificationResponse: (NotificationResponse response) {
-          // Gestire il click sulla notifica se necessario
-        },
+
       );
     } catch (e) {
       print("Errore durante l'inizializzazione delle notifiche: $e");
@@ -44,7 +42,7 @@ class NotificationService {
       importance: Importance.high,
       priority: Priority.high,
       showWhen: true,
-      color: AppColors.azzurroChiaro, // Azzurro come in Kotlin
+      color: AppColors.azzurroChiaro,
     );
 
     const NotificationDetails platformChannelSpecifics = NotificationDetails(

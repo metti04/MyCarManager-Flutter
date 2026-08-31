@@ -14,8 +14,11 @@ import '../obblighi/obblighi_auto_fragment.dart';
 import '../lavori/lavoro_screen.dart';
 import '../obblighi/obbligo_screen.dart';
 
+
 class SchedaAutoScreen extends StatelessWidget {
+
   final String targa;
+
   final String username;
 
   const SchedaAutoScreen({super.key, required this.targa, required this.username});
@@ -41,7 +44,7 @@ class SchedaAutoScreen extends StatelessWidget {
                 children: [
                   Column(
                     children: [
-                      // TOP HEADER
+                      // Header con tasto di ritorno, marca/modello e tasto di eliminazione
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         child: Row(
@@ -79,7 +82,7 @@ class SchedaAutoScreen extends StatelessWidget {
                         ),
                       ),
 
-                      // CAR IMAGE CARD
+                      // Card dell'immagine del veicolo
                       Center(
                         child: Card(
                           elevation: 4,
@@ -98,7 +101,7 @@ class SchedaAutoScreen extends StatelessWidget {
                         ),
                       ),
 
-                      // ATTIVA SWITCH
+                      // Switch per attivare o disattivare il veicolo
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         child: Row(
@@ -123,7 +126,7 @@ class SchedaAutoScreen extends StatelessWidget {
                         ),
                       ),
 
-                      // ICON BAR (Navigation)
+                      // Barra delle icone per la selezione del tab corrente
                       Container(
                         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         padding: const EdgeInsets.symmetric(vertical: 10),
@@ -143,14 +146,14 @@ class SchedaAutoScreen extends StatelessWidget {
                         ),
                       ),
 
-                      // CONTENT FRAGMENT
+                      // Sezione dinamica che mostra il fragment associato al tab corrente
                       Expanded(
                         child: _buildFragment(context, viewModel),
                       ),
                     ],
                   ),
                   
-                  // FLOATING ACTION BUTTON
+                  // Pulsante d'azione per aggiungere un nuovo lavoro o obbligo quando ci si trova nelle tab corrispondenti
                   if (viewModel.currentTab == 3 || viewModel.currentTab == 4)
                     Positioned(
                       bottom: 20,
@@ -170,6 +173,7 @@ class SchedaAutoScreen extends StatelessWidget {
     );
   }
 
+  // Mostra la finestra di dialogo per confermare l'eliminazione definitiva del veicolo
   void _confermaEliminaAuto(BuildContext context, SchedaAutoViewModel viewModel) {
     showDialog(
       context: context,
@@ -193,6 +197,7 @@ class SchedaAutoScreen extends StatelessWidget {
     );
   }
 
+  // Apre la schermata per l'inserimento di un nuovo lavoro o obbligo
   void _aggiungiNuovo(BuildContext context, SchedaAutoViewModel viewModel) async {
     final bool? success = await Navigator.of(context).push(
       MaterialPageRoute(
@@ -206,6 +211,7 @@ class SchedaAutoScreen extends StatelessWidget {
     }
   }
 
+  // Apre la schermata di modifica per l'intervento di manutenzione selezionato
   void _modificaLavoro(BuildContext context, SchedaAutoViewModel viewModel, Lavoro l) async {
     final result = await Navigator.push(
       context,
@@ -216,6 +222,7 @@ class SchedaAutoScreen extends StatelessWidget {
     }
   }
 
+  // Apre la schermata di modifica per l'obbligo fiscale o legale selezionato
   void _modificaObbligo(BuildContext context, SchedaAutoViewModel viewModel, Obbligo o) async {
     final result = await Navigator.push(
       context,
@@ -226,6 +233,7 @@ class SchedaAutoScreen extends StatelessWidget {
     }
   }
 
+  // Costruisce una singola icona di scelta rapida per la barra di navigazione del veicolo
   Widget _menuIcon(SchedaAutoViewModel viewModel, int index, String assetPath, String label) {
     final isSelected = viewModel.currentTab == index;
     final color = isSelected ? AppColors.blu : AppColors.nero;
@@ -253,6 +261,7 @@ class SchedaAutoScreen extends StatelessWidget {
     );
   }
 
+  // Restituisce il fragment corretto in base al tab selezionato
   Widget _buildFragment(BuildContext context, SchedaAutoViewModel viewModel) {
     switch (viewModel.currentTab) {
       case 0: return DettagliAutoFragment(auto: viewModel.auto!, viewModel: viewModel);

@@ -40,6 +40,7 @@ class _CensimentoScreenState extends State<CensimentoScreen> {
             body: SafeArea(
               child: Column(
                 children: [
+                  // intestazione
                   const BlueHeaderCard(
                     title: 'Censisci nuova auto',
                     height: 220,
@@ -55,6 +56,7 @@ class _CensimentoScreenState extends State<CensimentoScreen> {
                           _buildWhiteField(_cilindrataController, 'Cilindrata', keyboardType: TextInputType.number),
                           _buildWhiteField(_kmController, 'Km attuali', keyboardType: TextInputType.number),
                           
+                          // campo per la selezione della data di immatricolazione tramite il DatePicker
                           InkWell(
                             onTap: () async {
                               final picked = await showDatePicker(
@@ -73,6 +75,7 @@ class _CensimentoScreenState extends State<CensimentoScreen> {
                           _buildWhiteField(_potenzaController, 'Potenza', keyboardType: TextInputType.number),
                           _buildWhiteField(_identificatoreMotoreController, 'Codice motore'),
                           
+                          // menu a tendina per il tipo di alimentazione
                           _buildDropdownField(),
                           
                           _buildWhiteField(_vinController, 'Vin'),

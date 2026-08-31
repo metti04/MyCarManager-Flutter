@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/auto.dart';
 import '../../models/enum.dart';
-import '../../models/lavoro.dart';
-import '../../models/obbligo.dart';
 import '../../services/auto_service.dart';
 import '../../services/lavoro_service.dart';
 import '../../services/obbligo_service.dart';
@@ -19,12 +17,9 @@ class HomeViewModel extends ChangeNotifier {
   List<Auto> _autos = [];
   List<Auto> get autos => _autos;
 
-  // Mappe per sapere lo stato delle scadenze per singola auto
-  final Map<String, int> _scadutePerAuto = {};
-  final Map<String, int> _imminentiPerAuto = {};
-
-  int getScadute(String targa) => _scadutePerAuto[targa] ?? 0;
-  int getImminenti(String targa) => _imminentiPerAuto[targa] ?? 0;
+  // Mappa per sapere se un'auto ha scadenze imminenti o scadute
+  final Map<String, bool> _autoConScadenze = {};
+  bool haScadenze(String targa) => _autoConScadenze[targa] ?? false;
 
   double _speseTotali = 0.0;
   double get speseTotali => _speseTotali;
@@ -35,10 +30,7 @@ class HomeViewModel extends ChangeNotifier {
   int _countImminenti = 0;
   int get countImminenti => _countImminenti;
 
-  int _countRegolari = 0;
-  int get countRegolari => _countRegolari;
-
-  int get scadenzeTotali => _countScadute + _countImminenti + _countRegolari;
+  int get scadenzeTotali => _countScadute + _countImminenti;
 
   bool _loading = false;
   bool get loading => _loading;
@@ -56,20 +48,14 @@ class HomeViewModel extends ChangeNotifier {
       double speseTotali = 0.0;
       int scadute = 0;
       int imminenti = 0;
-      int regolari = 0;
       final now = DateTime.now();
-
-      _scadutePerAuto.clear();
-      _imminentiPerAuto.clear();
 
       // 2. Analizza ogni auto per calcolare spese e scadenze complessive
       for (var auto in _autos) {
-        if (auto.stato == StatoAuto.inattivo) continue;
         final lavori = await _lavoroService.getLavoriByTarga(auto.targa);
         final obblighi = await _obbligoService.getObblighiByTarga(auto.targa);
 
-        int autoScadute = 0;
-        int autoImminenti = 0;
+        bool carHasDeadlines = false;
 
         // Calcolo spese totali (tutti i lavori già eseguiti)
         for (var l in lavori) {
@@ -83,13 +69,10 @@ class HomeViewModel extends ChangeNotifier {
 
             if (giorni < 0 || kmRimanenti < 0) {
               scadute++;
-              autoScadute++;
+              carHasDeadlines = true;
             } else if (giorni <= 31 || kmRimanenti <= 1000) {
               imminenti++;
-              autoImminenti++;
-            }
-            else {
-              regolari++;
+              carHasDeadlines = true;
             }
           }
         }
@@ -104,24 +87,19 @@ class HomeViewModel extends ChangeNotifier {
             final giorni = o.dataScadenza!.difference(now).inDays;
             if (giorni < 0) {
               scadute++;
-              autoScadute++;
+              carHasDeadlines = true;
             } else if (giorni <= 31) {
               imminenti++;
-              autoImminenti++;
-            }
-            else {
-              regolari++;
+              carHasDeadlines = true;
             }
           }
         }
-        _scadutePerAuto[auto.targa] = autoScadute;
-        _imminentiPerAuto[auto.targa] = autoImminenti;
+        _autoConScadenze[auto.targa] = carHasDeadlines;
       }
       
       _speseTotali = speseTotali;
       _countScadute = scadute;
       _countImminenti = imminenti;
-      _countRegolari = regolari;
 
     } catch (e) {
       debugPrint('Errore caricamento dati home: $e');

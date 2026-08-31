@@ -21,7 +21,7 @@ class RegistrazioneViewModel extends ChangeNotifier {
       // Verifica unicità dello username
       if (esistenti.any((u) => u.username == utente.username)) return false;
       
-      // Salvataggio sul cloud e login automatico locale
+      // Salvataggio sul db e  per login in locale
       await _utenteService.inserisciUtente(utente);
       await _sessionManager.saveUser(utente);
       return true;

@@ -7,39 +7,65 @@ import '../../services/auto_service.dart';
 import '../../services/lavoro_service.dart';
 import '../../services/obbligo_service.dart';
 
+/// ViewModel per la gestione completa dei dati e delle funzionalità della scheda veicolo.
+///
+/// Si occupa del caricamento dei dettagli dell'auto, dei lavori e degli obblighi associati,
+/// calcolando le spese totali e monitorando le scadenze.
 class SchedaAutoViewModel extends ChangeNotifier {
-  // Servizi database per auto, lavori e obblighi fiscali
+  /// Servizio per la gestione delle informazioni dell'auto nel database.
   final _autoService = AutoService();
+
+  /// Servizio per le operazioni di I/O sui lavori di manutenzione.
   final _lavoroService = LavoroService();
+
+  /// Servizio per la gestione degli obblighi fiscali (bollo, assicurazione, ecc.).
   final _obbligoService = ObbligoService();
 
-  // Dati del veicolo e liste correlate
+  /// L'auto di cui visualizzare la scheda dettagliata.
   Auto? _auto;
+
+  /// Restituisce l'oggetto [Auto] attualmente caricato.
   Auto? get auto => _auto;
 
+  /// Lista completa dei lavori associati all'auto.
   List<Lavoro> _lavori = [];
+
+  /// Restituisce tutti i lavori registrati per l'auto.
   List<Lavoro> get lavori => _lavori;
+
+  /// Restituisce la sottolista dei soli lavori già eseguiti.
   List<Lavoro> get lavoriEseguiti => _lavori.where((l) => l.stato == StatoLavoro.eseguito).toList();
 
+  /// Lista completa degli obblighi associati all'auto.
   List<Obbligo> _obblighi = [];
+
+  /// Restituisce tutti gli obblighi associati all'auto.
   List<Obbligo> get obblighi => _obblighi;
+
+  /// Restituisce la sottolista dei soli obblighi già pagati.
   List<Obbligo> get obblighiPagati => _obblighi.where((o) => o.stato == StatoObbligo.pagato).toList();
 
-  // Stato di caricamento
+  /// Stato di caricamento dei dati del veicolo.
   bool _loading = false;
+
+  /// Restituisce `true` se il caricamento dei dati è in corso.
   bool get loading => _loading;
 
-  // Tab attualmente selezionata nella schermata (Storico/Scadenze/Dettagli)
+  /// Indice del tab attualmente attivo nella schermata del dettaglio veicolo.
   int _currentTab = 0;
+
+  /// Restituisce l'indice del tab correntemente attivo.
   int get currentTab => _currentTab;
 
-  // Cambia la tab visualizzata e notifica la UI
+  /// Imposta il tab attivo ed aggiorna i listener.
+  ///
+  /// [index] L'indice del tab da visualizzare (0: Dettagli, 1: Spese, 2: Scadenze, 3: Lavori, 4: Obblighi).
   void setTab(int index) {
     _currentTab = index;
     notifyListeners();
   }
 
-  // Carica tutte le informazioni di un veicolo data la targa
+  /// Carica asincronamente i dettagli dell'auto, i lavori e gli obblighi corrispondenti alla [targa].
   Future<void> caricaDati(String targa) async {
     _loading = true;
     notifyListeners();
@@ -56,7 +82,7 @@ class SchedaAutoViewModel extends ChangeNotifier {
     }
   }
 
-  // Attiva o disattiva il veicolo (es. se venduto o fermo)
+  /// Inverte lo stato del veicolo (da attivo a inattivo e viceversa).
   Future<void> toggleStato() async {
     if (_auto == null) return;
     if (_auto!.stato == StatoAuto.attivo) {
@@ -67,49 +93,63 @@ class SchedaAutoViewModel extends ChangeNotifier {
     await caricaDati(_auto!.targa);
   }
 
-  // Aggiorna il chilometraggio attuale del veicolo
+  /// Aggiorna il chilometraggio attuale del veicolo nel database.
+  ///
+  /// [newKm] Il nuovo valore del chilometraggio.
   Future<void> updateKm(int newKm) async {
     if (_auto == null) return;
     await _autoService.updateChilometraggio(_auto!.targa, newKm);
     await caricaDati(_auto!.targa);
   }
 
-  // Rimuove il veicolo dal database
+  /// Elimina definitivamente l'auto dal sistema.
   Future<void> eliminaAuto() async {
     if (_auto == null) return;
     await _autoService.eliminaAuto(_auto!.targa);
   }
 
-  // Elimina un singolo intervento di manutenzione
+  /// Elimina un singolo intervento di lavoro.
+  ///
+  /// [id] L'identificativo del lavoro da eliminare.
   Future<void> eliminaLavoro(int id) async {
     await _lavoroService.eliminaLavoro(id);
     if (_auto != null) await caricaDati(_auto!.targa);
   }
 
-  // Elimina un obbligo fiscale
+  /// Elimina un obbligo fiscale.
+  ///
+  /// [id] L'identificativo dell'obbligo da eliminare.
   Future<void> eliminaObbligo(int id) async {
     await _obbligoService.eliminaObbligo(id);
     if (_auto != null) await caricaDati(_auto!.targa);
   }
 
-  // Salva le modifiche a un lavoro o ne inserisce uno nuovo
+  /// Salva le modifiche apportate ad un intervento di lavoro.
+  ///
+  /// [lavoro] L'oggetto lavoro aggiornato.
   Future<void> aggiornaLavoro(Lavoro lavoro) async {
     await _lavoroService.aggiornaLavoro(lavoro);
     if (_auto != null) await caricaDati(_auto!.targa);
   }
 
-  // Salva le modifiche a un obbligo o ne inserisce uno nuovo
+  /// Salva le modifiche apportate ad un obbligo.
+  ///
+  /// [obbligo] L'oggetto obbligo aggiornato.
   Future<void> aggiornaObbligo(Obbligo obbligo) async {
     await _obbligoService.aggiornaObbligo(obbligo);
     if (_auto != null) await caricaDati(_auto!.targa);
   }
 
-  // Getters per le statistiche delle spese
+  /// Restituisce il costo totale di tutti i lavori già eseguiti.
   double get totLavori => _lavori.where((l) => l.stato == StatoLavoro.eseguito).fold(0, (sum, l) => sum + (l.costo ?? 0));
+
+  /// Restituisce la spesa totale per tutti gli obblighi fiscali pagati.
   double get totObblighi => _obblighi.where((o) => o.stato == StatoObbligo.pagato).fold(0, (sum, o) => sum + (o.costo ?? 0));
+
+  /// Restituisce il totale complessivo delle spese (lavori eseguiti + obblighi pagati).
   double get totaleGenerale => totLavori + totObblighi;
 
-  // Restituisce una lista unificata di lavori e obblighi ordinata per data decrescente
+  /// Restituisce la lista unificata delle spese sostenute (lavori ed obblighi) ordinata in ordine decrescente di data.
   List<dynamic> get itemsSpese {
     final l = _lavori.where((l) => l.stato == StatoLavoro.eseguito).toList();
     final o = _obblighi.where((o) => o.stato == StatoObbligo.pagato).toList();
@@ -120,7 +160,7 @@ class SchedaAutoViewModel extends ChangeNotifier {
     });
   }
 
-  // Getters per il monitoraggio delle scadenze
+  /// Restituisce il numero di scadenze (lavori da eseguire e obblighi da pagare) già trascorse.
   int get countScadute {
     final now = DateTime.now();
     int count = 0;
@@ -138,6 +178,7 @@ class SchedaAutoViewModel extends ChangeNotifier {
     return count;
   }
 
+  /// Restituisce il numero di scadenze imminenti (entro 31 giorni o entro 1000 km).
   int get countImminenti {
     final now = DateTime.now();
     int count = 0;
@@ -158,6 +199,7 @@ class SchedaAutoViewModel extends ChangeNotifier {
     return count;
   }
 
+  /// Restituisce il numero di scadenze regolari (future oltre i 31 giorni o 1000 km).
   int get countRegolari {
     final now = DateTime.now();
     int count = 0;

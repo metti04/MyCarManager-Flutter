@@ -163,8 +163,8 @@ class ProfiloScreen extends StatelessWidget {
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              final success = await viewModel.eliminaAccount();
-              if (success && context.mounted) {
+              await viewModel.eliminaAccount();
+              if (context.mounted) {
                 Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (_) => const LoginScreen()),
                   (route) => false,

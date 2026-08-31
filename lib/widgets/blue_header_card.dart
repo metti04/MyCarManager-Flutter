@@ -3,10 +3,17 @@ import '../theme/app_colors.dart';
 
 class BlueHeaderCard extends StatelessWidget {
   final String title;
+
   final double height;
+
   final Widget? actionBox;
 
-  const BlueHeaderCard({super.key, required this.title, this.height = 220, this.actionBox});
+  const BlueHeaderCard({
+    super.key,
+    required this.title,
+    this.height = 220,
+    this.actionBox,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +32,7 @@ class BlueHeaderCard extends StatelessWidget {
         mainAxisAlignment: actionBox == null ? MainAxisAlignment.center : MainAxisAlignment.start,
         children: [
           SizedBox(height: actionBox == null ? 40 : 60),
+          // Titolo principale centrato
           Text(
             title,
             textAlign: TextAlign.center,
@@ -35,6 +43,7 @@ class BlueHeaderCard extends StatelessWidget {
               decoration: TextDecoration.none,
             ),
           ),
+          // Sezione opzionale per componenti aggiuntivi nell'header (es. pulsanti di ricerca o selettori)
           if (actionBox != null) ...[
             const SizedBox(height: 15),
             Padding(
